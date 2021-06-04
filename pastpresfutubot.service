@@ -1,0 +1,15 @@
+[Unit]
+Description=Telegram bot 'PastPresentFutureBot'
+After=syslog.target
+After=network.target
+
+[Service]
+Type=simple
+User=dozer
+WorkingDirectory=/home/dozer/pastpresentfuturebot
+ExecStart=/usr/bin/python3 /home/dozer/pastpresentfuturebot/main.py
+RestartSec=10
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
