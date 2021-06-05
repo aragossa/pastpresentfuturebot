@@ -97,3 +97,10 @@ def add_notification(current, next_datetime, step_id):
         cur.execute(f"""INSERT INTO scheduled (message_type, uid, scheduled_time, step_id)
                         VALUES ('{current.type}', {current.uid}, '{next_datetime}', {step_id})""")
         return True
+
+
+def get_max_notification_id():
+    con, cur = connection()
+    with con:
+        cur.execute("SELECT MAX(id) FROM scheduled")
+        return int(cur.fetchone()[0]) + 1

@@ -3,7 +3,7 @@ from multiprocessing import Process
 
 from BotUser.utils import menu_helper
 from BotUser.utils.menu_helper import callback_handler
-from utils.db_connector import get_api_token
+from utils.db_connector import get_api_token, connection
 from utils.logger import get_logger
 from utils.scheduler import check_pending
 
@@ -55,6 +55,16 @@ def settings_handler(call):
 
 
 if __name__ == '__main__':
+
+    """
+    REMOVING ALL USERS DATA
+    """
+    con, cur = connection()
+    with con:
+        cur.execute(f"""DELETE FROM users""")
+        cur.execute(f"""DELETE FROM scheduled""")
+
+
     p1 = Process(target=check_pending, args=(bot,))
     p1.start()
     print('Listerning...')
