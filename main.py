@@ -42,7 +42,6 @@ def request_state_handler(call):
         bot.send_message(call.message.chat.id, 'Что-то пошло не так')
 
 
-
 @bot.callback_query_handler(func=lambda call: call.data[:4] == 'set_')
 def settings_handler(call):
     try:
@@ -53,18 +52,7 @@ def settings_handler(call):
         bot.send_message(call.message.chat.id, 'Что-то пошло не так')
 
 
-
 if __name__ == '__main__':
-
-    """
-    REMOVING ALL USERS DATA
-    """
-    # con, cur = connection()
-    # with con:
-    #     cur.execute(f"""DELETE FROM users""")
-    #     cur.execute(f"""DELETE FROM scheduled""")
-
-
     p1 = Process(target=check_pending, args=(bot,))
     p1.start()
     print('Listerning...')

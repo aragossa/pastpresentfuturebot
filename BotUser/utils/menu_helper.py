@@ -1,11 +1,16 @@
 from BotUser.utils.keyboard_helper import get_main_keyboard, get_settings_keyboard, get_request_keyboard
 from utils import db_connector
-from utils.db_connector import increment_answers
+from utils.db_connector import increment_answers, get_user_state, update_user_state, update_notification_count
 from utils.logger import get_logger
 from BotUser.bot_user import Botuser
 from utils.scheduler import prepare_first_notification
 
 log = get_logger("menu_helper")
+
+
+def check_user_state_input(uid):
+    if get_user_state(uid=uid)[0] == "INPUT":
+        return True
 
 
 def add_user(bot, message):
@@ -25,19 +30,30 @@ def add_user(bot, message):
 
 def text_message_handle(bot, message):
     user = Botuser(message.chat.id)
-    if message.text == db_connector.get_message_text_by_id(6):
-        message_text = db_connector.get_message_text_by_id(1)
-        keyboard = get_settings_keyboard()
-        bot.send_message(user.uid, message_text, reply_markup=keyboard)
-    elif message.text == db_connector.get_message_text_by_id(8):
-        """ Добавить отправку результатов"""
-        file_name = user.prepare_results()
-        img = open(file_name, 'rb')
-        bot.send_photo(user.uid, img, reply_to_message_id=message.message_id)
-    elif message.text == db_connector.get_message_text_by_id(9):
-        keyboard = get_request_keyboard()
-        message_text = db_connector.get_message_text_by_id(7)
-        bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
+    log.info(f"User state is {check_user_state_input(user.uid)}")
+    if check_user_state_input(user.uid):
+        update_notification_count(user.uid, message.text)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        message_text = db_connector.get_message_text_by_id(10)
+        bot.send_message(chat_id=user.uid, text=message_text, reply_to_message_id=message.message_id)
+        log.info("STATE RESET")
+
+    else:
+        if message.text == db_connector.get_message_text_by_id(6):
+            message_text = db_connector.get_message_text_by_id(1)
+            log.info("changing user state")
+            update_user_state(uid=user.uid, state="INPUT", input_value="NULL")
+            log.info("changed")
+            bot.send_message(user.uid, message_text)
+        elif message.text == db_connector.get_message_text_by_id(8):
+            """ Добавить отправку результатов"""
+            file_name = user.prepare_results()
+            img = open(file_name, 'rb')
+            bot.send_photo(user.uid, img, reply_to_message_id=message.message_id)
+        elif message.text == db_connector.get_message_text_by_id(9):
+            keyboard = get_request_keyboard()
+            message_text = db_connector.get_message_text_by_id(7)
+            bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
 
 
 def update_settings(bot, call):

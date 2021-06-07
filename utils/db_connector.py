@@ -67,8 +67,21 @@ def add_user(uid):
     con, cur = connection()
     with con:
         cur.execute(f"""INSERT INTO users (id) VALUES ({uid})""")
+        cur.execute(f"""INSERT INTO users_state (id) VALUES ({uid})""")
         return True
 
+def get_user_state(uid):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""SELECT state, input_value FROM users_state WHERE id ={uid}""")
+        return cur.fetchone()
+
+
+def update_user_state(uid, state, input_value):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""UPDATE users_state SET state = '{state}', input_value = '{input_value}' WHERE id ={uid}""")
+        return cur.fetchone()
 
 def update_notification_count(uid, data):
     con, cur = connection()
