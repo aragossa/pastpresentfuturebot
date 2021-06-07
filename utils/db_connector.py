@@ -47,6 +47,13 @@ def get_notification_count_by_uid(uid):
         cur.execute(f"""SELECT notification_count FROM users WHERE id = '{uid}'""")
         return cur.fetchone()[0]
 
+def get_user_results(uid):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""SELECT past_m, past_p, past_e, pres_m, pres_p, pres_e, fut_m, fut_p, fut_e 
+                        FROM users WHERE id = '{uid}'""")
+        return cur.fetchall()[0]
+
 
 
 def check_auth(uid):

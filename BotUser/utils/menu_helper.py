@@ -29,6 +29,11 @@ def text_message_handle(bot, message):
         message_text = db_connector.get_message_text_by_id(1)
         keyboard = get_settings_keyboard()
         bot.send_message(user.uid, message_text, reply_markup=keyboard)
+    elif message.text == db_connector.get_message_text_by_id(8):
+        """ Добавить отправку результатов"""
+        file_name = user.prepare_results()
+        img = open(file_name, 'rb')
+        bot.send_photo(user.uid, img, reply_to_message_id=message.message_id)
 
 
 def update_settings(bot, call):

@@ -59,10 +59,10 @@ if __name__ == '__main__':
     """
     REMOVING ALL USERS DATA
     """
-    con, cur = connection()
-    with con:
-        cur.execute(f"""DELETE FROM users""")
-        cur.execute(f"""DELETE FROM scheduled""")
+    # con, cur = connection()
+    # with con:
+    #     cur.execute(f"""DELETE FROM users""")
+    #     cur.execute(f"""DELETE FROM scheduled""")
 
 
     p1 = Process(target=check_pending, args=(bot,))

@@ -26,9 +26,11 @@ def get_request_keyboard():
 
 def get_main_keyboard():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    message_text = db_connector.get_message_text_by_id(6)
-    btn = types.KeyboardButton(message_text)
-    keyboard.add(btn)
+    button_text_config = db_connector.get_message_text_by_id(6)
+    btn1 = types.KeyboardButton(button_text_config)
+    button_text_analyse = db_connector.get_message_text_by_id(8)
+    btn2 = types.KeyboardButton(button_text_analyse)
+    keyboard.add(btn1, btn2)
     return keyboard
 
 
