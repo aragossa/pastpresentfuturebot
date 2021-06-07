@@ -1,4 +1,4 @@
-from BotUser.utils.keyboard_helper import get_main_keyboard, get_settings_keyboard
+from BotUser.utils.keyboard_helper import get_main_keyboard, get_settings_keyboard, get_request_keyboard
 from utils import db_connector
 from utils.db_connector import increment_answers
 from utils.logger import get_logger
@@ -34,6 +34,10 @@ def text_message_handle(bot, message):
         file_name = user.prepare_results()
         img = open(file_name, 'rb')
         bot.send_photo(user.uid, img, reply_to_message_id=message.message_id)
+    elif message.text == db_connector.get_message_text_by_id(9):
+        keyboard = get_request_keyboard()
+        message_text = db_connector.get_message_text_by_id(7)
+        bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
 
 
 def update_settings(bot, call):
