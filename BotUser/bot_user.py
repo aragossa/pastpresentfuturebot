@@ -27,7 +27,7 @@ class Botuser:
     def get_results(self):
         return db_connector.get_user_results(uid=self.uid)
 
-    def __plot_scatter(self, x, y, result):
+    def __plot_scatter(self, x, y, result, result_sum):
         if result > 15:
             size = 1500
         elif result > 10:
@@ -39,7 +39,8 @@ class Botuser:
         else:
             size = 100
         plt.scatter(x, y, s=size)
-        plt.text(x+.5, y, result)
+        if result > 0:
+            plt.text(x+.5, y, f"{result} ({round(result/result_sum*100, 2)}%)")
 
     def __get_y(self, counter):
         if counter % 3 == 0:
@@ -81,11 +82,14 @@ class Botuser:
         ax.set_xticklabels([])
 
         temp_counter = 0
+        result_sum = 0
+        for i in user_results:
+            result_sum += int(i)
 
         for elem in user_results:
             y = self.__get_y(temp_counter)
             x = self.__get_x(temp_counter)
-            self.__plot_scatter(x=x, y=y, result=int(elem))
+            self.__plot_scatter(x=x, y=y, result=int(elem), result_sum=result_sum)
             temp_counter += 1
 
 
