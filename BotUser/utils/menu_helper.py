@@ -1,3 +1,5 @@
+import os
+
 from BotUser.utils.keyboard_helper import get_main_keyboard, get_settings_keyboard, get_request_keyboard
 from utils import db_connector
 from utils.db_connector import increment_answers, get_user_state, update_user_state, update_notification_count
@@ -50,6 +52,7 @@ def text_message_handle(bot, message):
             file_name = user.prepare_results()
             img = open(file_name, 'rb')
             bot.send_photo(user.uid, img, reply_to_message_id=message.message_id)
+            os.remove(file_name)
         elif message.text == db_connector.get_message_text_by_id(9):
             keyboard = get_request_keyboard()
             message_text = db_connector.get_message_text_by_id(7)

@@ -28,13 +28,18 @@ class Botuser:
         return db_connector.get_user_results(uid=self.uid)
 
     def __plot_scatter(self, x, y, result):
-        if result > 10:
+        if result > 15:
+            size = 1500
+        elif result > 10:
             size = 1000
         elif result > 5:
             size = 600
+        elif result == 0:
+            size = 0
         else:
             size = 100
         plt.scatter(x, y, s=size)
+        plt.text(x+.5, y, result)
 
     def __get_y(self, counter):
         if counter % 3 == 0:
@@ -55,18 +60,34 @@ class Botuser:
     def prepare_results(self):
         user_results = self.get_results()
 
-        w = 6
-        h = 4
-        d = 200
-        plt.figure(figsize=(w, h), dpi=d)
-        plt.axis([-10, 10, -10, 10])
+        w = 4
+        h = 3
+        d = 400
+        fig = plt.figure(figsize=(w, h), dpi=d)
+        # plt.axis([-15, 15, -15, 15])
+
+        ax = fig.add_subplot(1, 1, 1)
+
+        # Move left y-axis and bottim x-axis to centre, passing through (0,0)
+        ax.spines['left'].set_position('center')
+        ax.spines['bottom'].set_position('center')
+
+        # Eliminate upper and right axes
+        ax.spines['right'].set_color('none')
+        ax.spines['top'].set_color('none')
+
+        # Turn off tick labels
+        ax.set_yticklabels([])
+        ax.set_xticklabels([])
 
         temp_counter = 0
+
         for elem in user_results:
             y = self.__get_y(temp_counter)
             x = self.__get_x(temp_counter)
             self.__plot_scatter(x=x, y=y, result=int(elem))
             temp_counter += 1
+
 
         file_name = f"temp/{str(uuid.uuid4())}.png"
         log.info(f"Prepared filename {file_name}")
