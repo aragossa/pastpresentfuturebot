@@ -33,7 +33,8 @@ def prepare_next_notification(current):
     hours_delta = int(whole_time / notification_count)
     if current.step_id <= notification_count - 1:
         log.info('Prepare today notification')
-        this_datetime = datetime.datetime.strptime(current.datetime, '%Y-%m-%d %H:%M:%S')
+        # this_datetime = datetime.datetime.strptime(current.datetime, '%Y-%m-%d %H:%M:%S')
+        this_datetime = datetime.datetime.now()
         next_datetime = this_datetime + datetime.timedelta(hours=hours_delta)
         next_datetime_str = next_datetime.strftime('%Y-%m-%d %H:%M:%S')
         add_notification(current=current, next_datetime=next_datetime_str, step_id=current.step_id + 1)
@@ -59,6 +60,6 @@ def check_pending(bot):
                 bot.send_message(chat_id=current.uid, text=message_text, reply_markup=keyboard)
                 log.info('message sent')
                 set_notification_sent(notification_id=current.id)
-                prepare_next_notification(current)
+                # prepare_next_notification(current)
         log.info('Go to sleep 5 sec')
         time.sleep(5)

@@ -77,6 +77,15 @@ def get_user_state(uid):
         return cur.fetchone()
 
 
+def select_last_notification(uid):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""SELECT * FROM scheduled 
+                        WHERE id = (SELECT MAX(id) FROM scheduled WHERE uid ={uid})
+        """)
+        return cur.fetchone()
+
+
 def update_user_state(uid, state, input_value):
     con, cur = connection()
     with con:
