@@ -58,16 +58,26 @@ class Botuser:
         elif counter // 3 == 2:
             return 5
 
+    def get_last_notification(self):
+        return utils.db_connector.select_last_notification(self.uid)
+
+
     def prepare_results(self):
         user_results = self.get_results()
 
-        w = 4
-        h = 3
-        d = 400
+        w = 6
+        h = 4
+        d = 100
         fig = plt.figure(figsize=(w, h), dpi=d)
-        # plt.axis([-15, 15, -15, 15])
+
 
         ax = fig.add_subplot(1, 1, 1)
+        # ax.xlim(-10, 10)
+        ax.set_xlim(left=-7, right=7)
+        ax.set_ylim(bottom=-7, top=7)
+        ax.text(-6, 8, "Прошлое")
+        ax.text(-1, 8, "Настоящее")
+        ax.text(4, 8, "Будущее")
 
         # Move left y-axis and bottim x-axis to centre, passing through (0,0)
         ax.spines['left'].set_position('center')
