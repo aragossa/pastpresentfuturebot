@@ -68,6 +68,8 @@ def get_user_results(uid, start_date):
                     (id = {uid})
                 """
         # log.info(query)
+
+        """Comment"""
         cur.execute(query)
         return cur.fetchall()[0]
 
