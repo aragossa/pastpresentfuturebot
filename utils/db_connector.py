@@ -47,13 +47,29 @@ def get_notification_count_by_uid(uid):
         cur.execute(f"""SELECT notification_count FROM users WHERE id = '{uid}'""")
         return cur.fetchone()[0]
 
-def get_user_results(uid):
+
+def get_user_results(uid, start_date):
     con, cur = connection()
     with con:
-        cur.execute(f"""SELECT past_m, past_p, past_e, pres_m, pres_p, pres_e, fut_m, fut_p, fut_e 
-                        FROM users WHERE id = '{uid}'""")
+        query = f"""SELECT
+                        COUNT(CASE WHEN "past_m" > 0 THEN 1 END) as past_m,
+                        COUNT(CASE WHEN "past_p" > 0 THEN 1 END) as past_p,
+                        COUNT(CASE WHEN "past_e" > 0 THEN 1 END) as past_e,
+                        COUNT(CASE WHEN "pres_m" > 0 THEN 1 END) as pres_m,
+                        COUNT(CASE WHEN "pres_p" > 0 THEN 1 END) as pres_p,
+                        COUNT(CASE WHEN "pres_e" > 0 THEN 1 END) as pres_e,
+                        COUNT(CASE WHEN "fut_m" > 0 THEN 1 END) as fut_m,
+                        COUNT(CASE WHEN "fut_p" > 0 THEN 1 END) as fut_p,
+                        COUNT(CASE WHEN "fut_e" > 0 THEN 1 END) as fut_e
+                  FROM results
+                  WHERE
+                    ("creation_date" >= "{start_date}")
+                  AND
+                    (id = {uid})
+                """
+        log.info(query)
+        cur.execute(query)
         return cur.fetchall()[0]
-
 
 
 def check_auth(uid):
@@ -69,6 +85,7 @@ def add_user(uid):
         cur.execute(f"""INSERT INTO users (id) VALUES ({uid})""")
         cur.execute(f"""INSERT INTO users_state (id) VALUES ({uid})""")
         return True
+
 
 def get_user_state(uid):
     con, cur = connection()
@@ -92,16 +109,20 @@ def update_user_state(uid, state, input_value):
         cur.execute(f"""UPDATE users_state SET state = '{state}', input_value = '{input_value}' WHERE id ={uid}""")
         return cur.fetchone()
 
+
 def update_notification_count(uid, data):
     con, cur = connection()
     with con:
         cur.execute(f"""UPDATE users SET notification_count = {data} WHERE id = {uid} """)
         return True
 
-def increment_answers(user, data):
+
+def increment_answers(user, data, creation_date):
     con, cur = connection()
     with con:
-        cur.execute(f"""UPDATE users SET "{data}" = "{data}" + 1 WHERE id = {user.uid} """)
+        query = f"""INSERT INTO results  ("id", "{data}", "creation_date") VALUES ({user.uid}, 1, '{creation_date}')"""
+        log.info(query)
+        cur.execute(query)
         return True
 
 

@@ -1,3 +1,4 @@
+import datetime
 import os
 import time
 
@@ -24,8 +25,8 @@ class Botuser:
     def add_user(self):
         db_connector.add_user(uid=self.uid)
 
-    def get_results(self):
-        return db_connector.get_user_results(uid=self.uid)
+    def get_results(self, start_date):
+        return db_connector.get_user_results(uid=self.uid, start_date=start_date)
 
     def __plot_scatter(self, x, y, result, result_sum):
         if result > 15:
@@ -63,7 +64,10 @@ class Botuser:
 
 
     def prepare_results(self):
-        user_results = self.get_results()
+        start_date = datetime.datetime.now() - datetime.timedelta(days=30)
+        log.info(start_date.strftime('%d.%m.%y %H:%M:%S'))
+        user_results = self.get_results(start_date=start_date.strftime('%Y-%m-%d %H:%M:%S'))
+        print(user_results)
 
         w = 6
         h = 4
