@@ -67,7 +67,7 @@ def get_user_results(uid, start_date):
                   AND
                     (id = {uid})
                 """
-        log.info(query)
+        # log.info(query)
         cur.execute(query)
         return cur.fetchall()[0]
 
