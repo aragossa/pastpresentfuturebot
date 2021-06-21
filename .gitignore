@@ -1,2 +1,4 @@
 /tests.py
 /data/database.db
+/temp
+/temp/*
