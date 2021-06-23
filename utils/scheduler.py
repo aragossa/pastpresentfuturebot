@@ -22,18 +22,47 @@ period_3_start = datetime.datetime.today().replace(hour=18, minute=00, second=00
 period_3_finish = datetime.datetime.today().replace(hour=21, minute=00, second=00)
 
 
+def get_sum(datetime_start, datetime_finish):
+    return (datetime_finish - datetime_start).seconds // 60
+
+
+def minutes_left_to_send():
+    now = datetime.datetime.now()
+    if start_day <= now < period_1_start:
+        minutes_left = int(get_delay_hours())
+        return minutes_left
+
+    elif period_1_start <= now < period_1_finish:
+        minutes_left = get_sum(now, period_1_finish) + get_sum(period_2_start, period_2_finish) + get_sum(
+            period_3_start, period_3_finish)
+        return minutes_left
+
+    elif period_1_finish <= now < period_2_start:
+        minutes_left = get_sum(period_2_start, period_2_finish) + get_sum(
+            period_3_start, period_3_finish)
+        return minutes_left
+
+    elif period_2_start <= now < period_2_finish:
+        minutes_left = get_sum(now, period_2_finish) + get_sum(
+            period_3_start, period_3_finish)
+        return minutes_left
+
+    elif period_2_finish <= now < period_3_start:
+        minutes_left = get_sum(period_3_start, period_3_finish)
+        return minutes_left
+
+    elif period_3_start <= now < period_3_finish:
+        minutes_left = get_sum(now, period_3_finish)
+        return minutes_left
+
+    else:
+        return 0
+
+
 def check_period(check_datetime):
     log.info(check_datetime)
     status = "continue"
     log.info(status)
-    log.info(start_day)
-    log.info(fin_day)
-    log.info(period_1_start)
-    log.info(period_1_finish)
-    log.info(period_2_start)
-    log.info(period_2_finish)
-    log.info(period_3_start)
-    log.info(period_3_finish)
 
     if start_day <= check_datetime < period_1_start:
         log.info(f"""{period_1_start} {status}""")
@@ -66,7 +95,8 @@ def check_period(check_datetime):
 
 
 def prepare_first_notification(uid):
-    data_set = (get_max_notification_id, "REQUEST", uid, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "NEW", 1)
+    data_set = (
+    get_max_notification_id, "REQUEST", uid, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "NEW", 1)
     print(data_set)
     current = Notification(data_set=data_set)
     log.info('preparing first notification')
@@ -82,15 +112,19 @@ def prepare_first_notification(uid):
 
 def prepare_next_notification(current):
     log.info('preparing next notification')
-    whole_time = int(get_delay_hours())
+    # whole_time = int(get_delay_hours())
+    whole_time_left = minutes_left_to_send()
     notification_count = get_notification_count_by_uid(current.uid)
-    hours_delta = int(whole_time / notification_count)
+    minutes_left_delta = int(whole_time_left / notification_count)
+    log.info(f"notification_count:{notification_count}, minutes_delta:{minutes_left_delta}, whole_time: {whole_time_left}")
+    log.info(f"current {current.step_id}")
     if current.step_id <= notification_count - 1:
         log.info('Prepare today notification')
-        next_datetime = datetime.datetime.now() + datetime.timedelta(hours=hours_delta)
+        next_datetime = datetime.datetime.now() + datetime.timedelta(minutes=minutes_left_delta)
         next_datetime_checked, status = check_period(next_datetime)
 
         next_datetime_str = next_datetime_checked.strftime('%Y-%m-%d %H:%M:%S')
+        log.info(f"next_datetime_str {next_datetime_str}")
         next_step = current.step_id + 1
         if status == "stop":
             next_datetime = datetime.datetime.today() + datetime.timedelta(days=1)

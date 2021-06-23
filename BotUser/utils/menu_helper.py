@@ -68,15 +68,20 @@ def update_settings(bot, call):
     message_text = db_connector.get_message_text_by_id(5)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=message_text)
 
+
 # SELECT COUNT("past_m") FROM results WHERE "creation_date" > "2021-06-08 15:00:00"
 def callback_handler(bot, call):
     user = Botuser(call.message.chat.id)
     data = call.data.split("_")
     formatted_data = f"""{data[1]}_{data[2]}"""
     next_notification_state = True
+    log.info(f"lenght of data - {len(data)}")
     if len(data) == 4:
         next_notification_state = False
+
+    log.info(f"next notification state - {next_notification_state}")
     creation_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    log.info(f"creation_date {creation_date}")
     increment_answers(user=user, data=formatted_data, creation_date=creation_date)
     message_text = db_connector.get_message_text_by_id(5)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=message_text)
