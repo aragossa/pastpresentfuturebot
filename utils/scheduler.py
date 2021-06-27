@@ -88,7 +88,7 @@ def check_period(check_datetime):
         log.info(f"""{check_datetime} {status}""")
         return check_datetime, status
 
-    else:
+    elif period_3_finish <= check_datetime <= fin_day:
         status = "stop"
         log.info(f"""{period_3_finish} {status}""")
         return period_3_finish, status
