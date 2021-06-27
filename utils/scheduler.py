@@ -143,7 +143,7 @@ def prepare_next_notification(current):
 
 def check_pending(bot):
     while True:
-        log.info('Prepare to sql query')
+        #log.info('Prepare to sql query')
         for notification in db_connector.get_notifications():
             current = Notification(notification)
             log.info(f'Found notification id={current.id} for user {current.uid} with time {current.datetime}')
@@ -157,5 +157,5 @@ def check_pending(bot):
                 log.info('message sent')
                 set_notification_sent(notification_id=current.id)
                 # prepare_next_notification(current)
-        log.info('Go to sleep 5 sec')
+        #log.info('Go to sleep 5 sec')
         time.sleep(5)
