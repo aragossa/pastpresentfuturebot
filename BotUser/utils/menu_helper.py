@@ -12,6 +12,14 @@ from utils.scheduler import prepare_first_notification, prepare_next_notificatio
 log = get_logger("menu_helper")
 
 
+def is_int(str):
+    try:
+        int(str)
+        return True
+    except ValueError:
+        return False
+
+
 def check_user_state_input(uid):
     if get_user_state(uid=uid)[0] == "INPUT":
         return True
@@ -35,30 +43,47 @@ def add_user(bot, message):
 def text_message_handle(bot, message):
     user = Botuser(message.chat.id)
     log.info(f"User state is {check_user_state_input(user.uid)}")
-    if check_user_state_input(user.uid):
-        update_notification_count(user.uid, message.text)
-        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-        message_text = db_connector.get_message_text_by_id(10)
-        bot.send_message(chat_id=user.uid, text=message_text, reply_to_message_id=message.message_id)
-        log.info("STATE RESET")
+    # if check_user_state_input(user.uid):
+    #     update_notification_count(user.uid, message.text)
+    #     update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+    #     message_text = db_connector.get_message_text_by_id(10)
+    #     bot.send_message(chat_id=user.uid, text=message_text, reply_to_message_id=message.message_id)
+    #     log.info("STATE RESET")
 
-    else:
-        if message.text == db_connector.get_message_text_by_id(6):
-            message_text = db_connector.get_message_text_by_id(1)
-            log.info("changing user state")
-            update_user_state(uid=user.uid, state="INPUT", input_value="NULL")
-            log.info("changed")
-            bot.send_message(user.uid, message_text)
-        elif message.text == db_connector.get_message_text_by_id(8):
-            file_name = user.prepare_results()
-            img = open(file_name, 'rb')
-            bot.send_photo(user.uid, img, reply_to_message_id=message.message_id)
-            os.remove(file_name)
-        elif message.text == db_connector.get_message_text_by_id(9):
-            next_notification_state = "_skip"
-            keyboard = get_request_keyboard(next_notification_state)
-            message_text = db_connector.get_message_text_by_id(7)
-            bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
+
+    if message.text == db_connector.get_message_text_by_id(6):
+        message_text = db_connector.get_message_text_by_id(1)
+        log.info("changing user state")
+        update_user_state(uid=user.uid, state="INPUT", input_value="NULL")
+        log.info("changed")
+        bot.send_message(user.uid, message_text)
+    elif message.text == db_connector.get_message_text_by_id(8):
+        file_name = user.prepare_results()
+        img = open(file_name, 'rb')
+        bot.send_photo(user.uid, img, reply_to_message_id=message.message_id)
+        os.remove(file_name)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        log.info("STATE RESET")
+    elif message.text == db_connector.get_message_text_by_id(9):
+        next_notification_state = "_skip"
+        keyboard = get_request_keyboard(next_notification_state)
+        message_text = db_connector.get_message_text_by_id(7)
+        bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        log.info("STATE RESET")
+    elif check_user_state_input(user.uid):
+        log.info(f"message.text is int {is_int(message.text)}")
+        if is_int(message.text):
+            update_notification_count(user.uid, message.text)
+            update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+            message_text = db_connector.get_message_text_by_id(10)
+            bot.send_message(chat_id=user.uid, text=message_text, reply_to_message_id=message.message_id)
+            log.info("STATE RESET")
+        else:
+            update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+            bot.send_message(chat_id=user.uid, text="Нужно указать целое число",
+                                 reply_to_message_id=message.message_id)
+            log.info("STATE RESET")
 
 
 def update_settings(bot, call):

@@ -12,14 +12,16 @@ from utils.notifications import Notification
 
 log = get_logger("scheduler")
 
-start_day = datetime.datetime.today().replace(hour=0, minute=00, second=00)
-fin_day = datetime.datetime.today().replace(hour=23, minute=59, second=59)
-period_1_start = datetime.datetime.today().replace(hour=8, minute=00, second=00)
-period_1_finish = datetime.datetime.today().replace(hour=9, minute=00, second=00)
-period_2_start = datetime.datetime.today().replace(hour=12, minute=00, second=00)
-period_2_finish = datetime.datetime.today().replace(hour=14, minute=00, second=00)
-period_3_start = datetime.datetime.today().replace(hour=18, minute=00, second=00)
-period_3_finish = datetime.datetime.today().replace(hour=21, minute=00, second=00)
+def get_today_limits():
+    start_day = datetime.datetime.today().replace(hour=0, minute=00, second=00)
+    fin_day = datetime.datetime.today().replace(hour=23, minute=59, second=59)
+    period_1_start = datetime.datetime.today().replace(hour=8, minute=00, second=00)
+    period_1_finish = datetime.datetime.today().replace(hour=9, minute=00, second=00)
+    period_2_start = datetime.datetime.today().replace(hour=12, minute=00, second=00)
+    period_2_finish = datetime.datetime.today().replace(hour=14, minute=00, second=00)
+    period_3_start = datetime.datetime.today().replace(hour=18, minute=00, second=00)
+    period_3_finish = datetime.datetime.today().replace(hour=21, minute=00, second=00)
+    return start_day, fin_day, period_1_start, period_1_finish, period_2_start, period_2_finish, period_3_start, period_3_finish
 
 
 def get_sum(datetime_start, datetime_finish):
@@ -28,6 +30,7 @@ def get_sum(datetime_start, datetime_finish):
 
 def minutes_left_to_send():
     now = datetime.datetime.now()
+    start_day, fin_day, period_1_start, period_1_finish, period_2_start, period_2_finish, period_3_start, period_3_finish = get_today_limits()
     if start_day <= now < period_1_start:
         minutes_left = int(get_delay_hours())
         return minutes_left
@@ -60,11 +63,13 @@ def minutes_left_to_send():
 
 
 def check_period(check_datetime):
+    start_day, fin_day, period_1_start, period_1_finish, period_2_start, period_2_finish, period_3_start, period_3_finish = get_today_limits()
     log.info(check_datetime)
     status = "continue"
     log.info(status)
 
     if start_day <= check_datetime < period_1_start:
+        log.info(f"""state 1""")
         log.info(f"""{period_1_start} {status}""")
         return period_1_start, status
 
@@ -100,9 +105,9 @@ def prepare_first_notification(uid):
     print(data_set)
     current = Notification(data_set=data_set)
     log.info('preparing first notification')
-    whole_time = int(get_delay_hours())
-    notification_count = get_notification_count_by_uid(current.uid)
-    hours_delta = int(whole_time / notification_count)
+    # whole_time = int(get_delay_hours())
+    # notification_count = get_notification_count_by_uid(current.uid)
+    # hours_delta = int(whole_time / notification_count)
     log.info('Prepare today notification')
     this_datetime = datetime.datetime.strptime(current.datetime, '%Y-%m-%d %H:%M:%S')
     next_datetime = this_datetime + datetime.timedelta(days=1)
@@ -120,7 +125,8 @@ def prepare_next_notification(current):
     log.info(f"current {current.step_id}")
     if current.step_id <= notification_count - 1:
         log.info('Prepare today notification')
-        next_datetime = datetime.datetime.now() + datetime.timedelta(minutes=minutes_left_delta)
+        next_datetime = (datetime.datetime.now() + datetime.timedelta(minutes=minutes_left_delta))
+        log.info(f"next_datetime {next_datetime}")
         next_datetime_checked, status = check_period(next_datetime)
 
         next_datetime_str = next_datetime_checked.strftime('%Y-%m-%d %H:%M:%S')
