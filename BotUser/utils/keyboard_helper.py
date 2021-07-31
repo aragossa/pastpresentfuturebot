@@ -32,7 +32,14 @@ def get_main_keyboard():
     btn2 = types.KeyboardButton(button_text_analyse)
     button_text_analyse = db_connector.get_message_text_by_id(9)
     btn3 = types.KeyboardButton(button_text_analyse)
-    keyboard.add(btn1, btn2, btn3)
+    button_text_analyse_dyn = db_connector.get_message_text_by_id(11)
+    btn4 = types.KeyboardButton(button_text_analyse_dyn)
+    button_text_share = db_connector.get_message_text_by_id(12)
+    btn5 = types.KeyboardButton(button_text_share)
+    button_text_manual = db_connector.get_message_text_by_id(13)
+    btn6 = types.KeyboardButton(button_text_manual)
+
+    keyboard.add(btn1, btn2, btn3, btn4, btn5, btn6)
     return keyboard
 
 

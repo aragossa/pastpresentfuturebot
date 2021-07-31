@@ -52,25 +52,64 @@ def text_message_handle(bot, message):
 
 
     if message.text == db_connector.get_message_text_by_id(6):
+        """ Меню настроки """
+
         message_text = db_connector.get_message_text_by_id(1)
         log.info("changing user state")
         update_user_state(uid=user.uid, state="INPUT", input_value="NULL")
         log.info("changed")
         bot.send_message(user.uid, message_text)
+
     elif message.text == db_connector.get_message_text_by_id(8):
+        """ Меню анализ """
+
         file_name = user.prepare_results()
         img = open(file_name, 'rb')
         bot.send_photo(user.uid, img, reply_to_message_id=message.message_id)
         os.remove(file_name)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
+
     elif message.text == db_connector.get_message_text_by_id(9):
+        """ Меню оценить состояние """
+
         next_notification_state = "_skip"
         keyboard = get_request_keyboard(next_notification_state)
         message_text = db_connector.get_message_text_by_id(7)
         bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
+
+
+    elif message.text == db_connector.get_message_text_by_id(11):
+        """ Меню анализ в динамике """
+
+        gif_file_name, file_names  = user.prepare_results_dyn()
+
+        img = open(gif_file_name, 'rb')
+        bot.send_video(user.uid, img, reply_to_message_id=message.message_id)
+
+        os.remove(gif_file_name)
+        for file_name in file_names:
+            os.remove(file_name)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        log.info("STATE RESET")
+
+
+    elif message.text == db_connector.get_message_text_by_id(12):
+        """ Меню поделиться """
+
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        log.info("STATE RESET")
+
+    elif message.text == db_connector.get_message_text_by_id(13):
+        """ Меню мануал """
+
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        log.info("STATE RESET")
+
+
+
     elif check_user_state_input(user.uid):
         log.info(f"message.text is int {is_int(message.text)}")
         if is_int(message.text):
