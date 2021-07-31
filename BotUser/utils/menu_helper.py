@@ -87,7 +87,7 @@ def text_message_handle(bot, message):
         gif_file_name, file_names  = user.prepare_results_dyn()
 
         img = open(gif_file_name, 'rb')
-        bot.send_video(user.uid, img, reply_to_message_id=message.message_id)
+        bot.send_animation(user.uid, img, reply_to_message_id=message.message_id)
 
         os.remove(gif_file_name)
         for file_name in file_names:
