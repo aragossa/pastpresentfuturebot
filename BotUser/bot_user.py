@@ -17,6 +17,18 @@ class Botuser:
     def __init__(self, uid):
         self.uid = uid
 
+    @staticmethod
+    def get_last_notification_status(uid):
+        query_result = db_connector.get_last_notification_status(uid)
+        log.info(query_result)
+        if query_result is not None:
+            status = query_result[0]
+            message_id = query_result[1]
+        else:
+            status = None
+            message_id = None
+        return status, message_id
+
     def check_auth(self):
         if utils.db_connector.check_auth(self.uid):
             return True
@@ -168,3 +180,6 @@ class Botuser:
         gif_file_name = f'temp/{str(uuid.uuid4())}.gif'
         imageio.mimsave(gif_file_name, images, duration=1)
         return gif_file_name, file_names
+
+    def set_notification_complite(self, notification_id):
+        db_connector.set_notification_complite(notification_id)

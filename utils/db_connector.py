@@ -169,14 +169,36 @@ def get_notifications():
     con, cur = connection()
     with con:
         datetime_now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        cur.execute(f"""SELECT * FROM scheduled WHERE scheduled_time <= '{datetime_now}' AND status = 'NEW'""")
+        cur.execute(f"""SELECT id, message_type, uid, scheduled_time, status, step_id, message_id FROM scheduled
+                        WHERE scheduled_time <= '{datetime_now}'
+                        AND status = 'NEW'""")
         return cur.fetchall()
+
+def get_last_notification_status(uid):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""SELECT status, message_id FROM scheduled
+                        WHERE id = (SELECT MAX(id) FROM scheduled WHERE uid = {uid}) - 1""")
+        return cur.fetchone()
 
 
 def set_notification_sent(notification_id):
     con, cur = connection()
     with con:
         cur.execute(f"""UPDATE scheduled SET status = 'SENT' WHERE id = {notification_id} """)
+        return True
+
+def set_notification_complite(notification_id):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""UPDATE scheduled SET status = 'COMPLITE'
+                        WHERE id = {notification_id}""")
+        return True
+
+def update_message_id(notification_id, message_id):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""UPDATE scheduled SET message_id = {message_id} WHERE id = {notification_id} """)
         return True
 
 
@@ -193,3 +215,5 @@ def get_max_notification_id():
     with con:
         cur.execute("SELECT MAX(id) FROM scheduled")
         return int(cur.fetchone()[0]) + 1
+
+

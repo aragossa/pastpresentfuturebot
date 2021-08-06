@@ -1,10 +1,11 @@
 import time
 import datetime
 
+from BotUser.bot_user import Botuser
 from BotUser.utils.keyboard_helper import get_request_keyboard
 from utils import db_connector
 from utils.db_connector import set_notification_sent, get_delay_hours, get_notification_count_by_uid, add_notification, \
-    get_max_notification_id
+    get_max_notification_id, update_message_id
 from utils.logger import get_logger
 from utils.notifications import Notification
 
@@ -154,14 +155,20 @@ def check_pending(bot):
             current = Notification(notification)
             log.info(f'Found notification id={current.id} for user {current.uid} with time {current.datetime}')
             if current.type == 'REQUEST':
+                prev_status, prev_message_id = Botuser.get_last_notification_status(current.uid)
                 message_text = db_connector.get_message_text_by_id(7)
                 log.info(f'Message for {current.uid} text = {message_text}')
                 next_notification_state = ""
-                keyboard = get_request_keyboard(next_notification_state)
+                keyboard = get_request_keyboard(next_notification_state, current.id)
                 log.info('ready to send message')
-                bot.send_message(chat_id=current.uid, text=message_text, reply_markup=keyboard)
+                msg = bot.send_message(chat_id=current.uid, text=message_text, reply_markup=keyboard)
+                log.info(msg)
                 log.info('message sent')
                 set_notification_sent(notification_id=current.id)
-                # prepare_next_notification(current)
+                update_message_id(notification_id=current.id, message_id=msg.message_id)
+                if prev_status != 'COMPLITE':
+                    log.info(f"{current.uid}, {prev_message_id}")
+                    bot.delete_message(chat_id=current.uid, message_id=prev_message_id)
+                prepare_next_notification(current)
         #log.info('Go to sleep 5 sec')
         time.sleep(5)

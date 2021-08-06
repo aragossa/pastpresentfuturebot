@@ -6,20 +6,20 @@ from utils.logger import get_logger
 log = get_logger("keyboardhelper")
 
 
-def get_request_keyboard(next_notification_state):
+def get_request_keyboard(next_notification_state, notification_id):
     keyboard = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(text='Прошлое', callback_data='empty')
     btn2 = types.InlineKeyboardButton(text='Настоящее', callback_data='empty')
     btn3 = types.InlineKeyboardButton(text='Будущее', callback_data='empty')
-    btn4 = types.InlineKeyboardButton(text='+', callback_data=f'callback_past_p{next_notification_state}')
-    btn5 = types.InlineKeyboardButton(text='+', callback_data=f'callback_pres_p{next_notification_state}')
-    btn6 = types.InlineKeyboardButton(text='+', callback_data=f'callback_fut_p{next_notification_state}')
-    btn7 = types.InlineKeyboardButton(text='=', callback_data=f'callback_past_e{next_notification_state}')
-    btn8 = types.InlineKeyboardButton(text='=', callback_data=f'callback_pres_e{next_notification_state}')
-    btn9 = types.InlineKeyboardButton(text='=', callback_data=f'callback_fut_e{next_notification_state}')
-    btn10 = types.InlineKeyboardButton(text='-', callback_data=f'callback_past_m{next_notification_state}')
-    btn11 = types.InlineKeyboardButton(text='-', callback_data=f'callback_pres_m{next_notification_state}')
-    btn12 = types.InlineKeyboardButton(text='-', callback_data=f'callback_fut_m{next_notification_state}')
+    btn4 = types.InlineKeyboardButton(text='+', callback_data=f'callback_past_p{next_notification_state}_{notification_id}')
+    btn5 = types.InlineKeyboardButton(text='+', callback_data=f'callback_pres_p{next_notification_state}_{notification_id}')
+    btn6 = types.InlineKeyboardButton(text='+', callback_data=f'callback_fut_p{next_notification_state}_{notification_id}')
+    btn7 = types.InlineKeyboardButton(text='=', callback_data=f'callback_past_e{next_notification_state}_{notification_id}')
+    btn8 = types.InlineKeyboardButton(text='=', callback_data=f'callback_pres_e{next_notification_state}_{notification_id}')
+    btn9 = types.InlineKeyboardButton(text='=', callback_data=f'callback_fut_e{next_notification_state}_{notification_id}')
+    btn10 = types.InlineKeyboardButton(text='-', callback_data=f'callback_past_m{next_notification_state}_{notification_id}')
+    btn11 = types.InlineKeyboardButton(text='-', callback_data=f'callback_pres_m{next_notification_state}_{notification_id}')
+    btn12 = types.InlineKeyboardButton(text='-', callback_data=f'callback_fut_m{next_notification_state}_{notification_id}')
     keyboard.add(btn1, btn2, btn3, btn4, btn5, btn6, btn7, btn8, btn9, btn10, btn11, btn12)
     return keyboard
 

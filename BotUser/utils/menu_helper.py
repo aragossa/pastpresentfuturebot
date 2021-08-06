@@ -1,5 +1,6 @@
 import datetime
 import os
+import time
 
 from BotUser.utils.keyboard_helper import get_main_keyboard, get_request_keyboard
 from utils import db_connector
@@ -50,7 +51,6 @@ def text_message_handle(bot, message):
     #     bot.send_message(chat_id=user.uid, text=message_text, reply_to_message_id=message.message_id)
     #     log.info("STATE RESET")
 
-
     if message.text == db_connector.get_message_text_by_id(6):
         """ Меню настроки """
 
@@ -59,6 +59,9 @@ def text_message_handle(bot, message):
         update_user_state(uid=user.uid, state="INPUT", input_value="NULL")
         log.info("changed")
         bot.send_message(user.uid, message_text)
+        # msg = bot.send_message(user.uid, message_text)
+        # time.sleep(5)
+        # bot.edit_message_text(chat_id=msg.chat.id, message_id=msg.message_id, text="test")
 
     elif message.text == db_connector.get_message_text_by_id(8):
         """ Меню анализ """
@@ -74,7 +77,8 @@ def text_message_handle(bot, message):
         """ Меню оценить состояние """
 
         next_notification_state = "_skip"
-        keyboard = get_request_keyboard(next_notification_state)
+        next_notification_id = int(db_connector.select_last_notification(user.uid)[0]) + 1
+        keyboard = get_request_keyboard(next_notification_state, next_notification_id)
         message_text = db_connector.get_message_text_by_id(7)
         bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
@@ -84,7 +88,7 @@ def text_message_handle(bot, message):
     elif message.text == db_connector.get_message_text_by_id(11):
         """ Меню анализ в динамике """
 
-        gif_file_name, file_names  = user.prepare_results_dyn()
+        gif_file_name, file_names = user.prepare_results_dyn()
 
         img = open(gif_file_name, 'rb')
         bot.send_animation(user.uid, img, reply_to_message_id=message.message_id)
@@ -121,7 +125,7 @@ def text_message_handle(bot, message):
         else:
             update_user_state(uid=user.uid, state="NULL", input_value="NULL")
             bot.send_message(chat_id=user.uid, text="Нужно указать целое число",
-                                 reply_to_message_id=message.message_id)
+                             reply_to_message_id=message.message_id)
             log.info("STATE RESET")
 
 
@@ -138,11 +142,12 @@ def callback_handler(bot, call):
     user = Botuser(call.message.chat.id)
     data = call.data.split("_")
     formatted_data = f"""{data[1]}_{data[2]}"""
+    notification_id = data[3]
     next_notification_state = True
     log.info(f"lenght of data - {len(data)}")
     if len(data) == 4:
         next_notification_state = False
-
+    user.set_notification_complite(notification_id)
     log.info(f"next notification state - {next_notification_state}")
     creation_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     log.info(f"creation_date {creation_date}")
