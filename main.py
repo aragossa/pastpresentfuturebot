@@ -12,6 +12,8 @@ TOKEN = get_api_token()
 bot = telebot.TeleBot(TOKEN)
 
 
+"t.me/Madbetbot?start=3f4f2bd6-fdf5-49d3-9a0c-1b3d630d7de2"
+
 @bot.message_handler(commands=['start'])
 def command_start_handler(m):
     try:
@@ -20,6 +22,7 @@ def command_start_handler(m):
         log.exception(e)
         log.exception(m)
         bot.send_message(m.chat.id, 'Что-то пошло не так')
+
 
 
 @bot.message_handler(content_types='text')

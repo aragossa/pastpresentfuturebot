@@ -35,8 +35,8 @@ class Botuser:
         else:
             return False
 
-    def add_user(self):
-        db_connector.add_user(uid=self.uid)
+    def add_user(self, refer_id=None):
+        db_connector.add_user(uid=self.uid, refer_id=refer_id)
 
     def get_results(self, start_date):
         return db_connector.get_user_results(uid=self.uid, start_date=start_date)

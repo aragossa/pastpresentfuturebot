@@ -118,11 +118,17 @@ def check_auth(uid):
         return cur.fetchone()
 
 
-def add_user(uid):
+def add_user(uid, refer_id):
     con, cur = connection()
+
     with con:
         cur.execute(f"""INSERT INTO users (id) VALUES ({uid})""")
-        cur.execute(f"""INSERT INTO users_state (id) VALUES ({uid})""")
+        if refer_id is not None:
+            log.info("found refer_id")
+            cur.execute(f"""INSERT INTO users_state (id, refer_id) VALUES ({uid}, {refer_id})""")
+        else:
+            log.info("not found refer_id")
+            cur.execute(f"""INSERT INTO users_state (id) VALUES ({uid})""")
         return True
 
 

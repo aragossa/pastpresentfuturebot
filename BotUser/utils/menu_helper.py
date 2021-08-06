@@ -30,12 +30,19 @@ def add_user(bot, message):
     user = Botuser(message.chat.id)
     keyboard = get_main_keyboard()
     log.info(f"{user.check_auth()}")
+
+    bot.send_message(user.uid, "test")
+
     if user.check_auth():
         message_text = db_connector.get_message_text_by_id(3)
         bot.send_message(user.uid, message_text, reply_markup=keyboard)
 
     else:
-        user.add_user()
+        if len(message.text.split()) > 1:
+            log.info(f"found refer_id {message.text.split()[1]}")
+            user.add_user(refer_id=message.text.split()[1])
+        else:
+            user.add_user()
         message_text = db_connector.get_message_text_by_id(3)
         bot.send_message(user.uid, message_text, reply_markup=keyboard)
         prepare_first_notification(user.uid)
@@ -102,7 +109,7 @@ def text_message_handle(bot, message):
 
     elif message.text == db_connector.get_message_text_by_id(12):
         """ Меню поделиться """
-
+        bot.send_message(user.uid, f"Ссылка для подключения к боту t.me/pronabudbot?start={user.uid}")
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
 
@@ -157,3 +164,6 @@ def callback_handler(bot, call):
     current = Notification(data_set=user.get_last_notification())
     if next_notification_state:
         prepare_next_notification(current)
+
+def ref(bot, message):
+    user = Botuser(message.chat.id)
