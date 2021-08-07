@@ -151,7 +151,7 @@ def callback_handler(bot, call):
     user = Botuser(call.message.chat.id)
     data = call.data.split("_")
     formatted_data = f"""{data[1]}_{data[2]}"""
-    notification_id = data[3]
+    notification_id = data[4]
     next_notification_state = True
     log.info(f"lenght of data - {len(data)}")
     if len(data) == 4:
