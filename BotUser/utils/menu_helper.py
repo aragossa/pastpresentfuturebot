@@ -116,6 +116,8 @@ def text_message_handle(bot, message):
     elif message.text == db_connector.get_message_text_by_id(13):
         """ Меню мануал """
 
+        message_text = db_connector.get_message_text_by_id(14)
+        bot.send_message(user.uid, message_text)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
 

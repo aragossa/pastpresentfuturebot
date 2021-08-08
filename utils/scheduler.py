@@ -113,6 +113,7 @@ def prepare_first_notification(uid):
     this_datetime = datetime.datetime.strptime(current.datetime, '%Y-%m-%d %H:%M:%S')
     next_datetime = this_datetime + datetime.timedelta(days=1)
     next_datetime_str = next_datetime.strftime('%Y-%m-%d')
+    log.info(f"current.step_id {current.step_id}")
     add_notification(current=current, next_datetime=f'{next_datetime_str} 09:00:00', step_id=current.step_id + 1)
 
 
