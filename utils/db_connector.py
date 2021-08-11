@@ -183,19 +183,13 @@ def get_notifications():
 def get_last_notification_status(uid):
     con, cur = connection()
     with con:
-        query_1 = f"SELECT MAX(id) FROM scheduled WHERE uid = {uid}"
-        log.debug(query_1)
-        cur.execute(query_1)
-        result = cur.fetchone()
-        log.debug(result)
-        if result:
-            pref_message_id = int(result[0]) - 1
-            query = f"""SELECT status, message_id FROM scheduled WHERE id = {pref_message_id}"""
-            log.info(query)
-            cur.execute(query)
-            return cur.fetchone()
-        else:
-            return None
+        query = f"""SELECT MAX(id) from scheduled 
+                    WHERE uid = {uid}
+                    AND message_id is not NULL"""
+        log.debug(query)
+        cur.execute(query)
+        return cur.fetchone()
+
 
 
 def set_notification_sent(notification_id):
