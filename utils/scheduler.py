@@ -157,6 +157,8 @@ def check_pending(bot):
             log.info(f'Found notification id={current.id} for user {current.uid} with time {current.datetime}')
             if current.type == 'REQUEST':
                 prev_status, prev_message_id = Botuser.get_last_notification_status(current.uid)
+                log.info(f"prev_status {prev_status}")
+                log.info(f"prev_message_id {prev_message_id}")
                 message_text = db_connector.get_message_text_by_id(7)
                 log.info(f'Message for {current.uid} text = {message_text}')
                 next_notification_state = ""

@@ -183,9 +183,19 @@ def get_notifications():
 def get_last_notification_status(uid):
     con, cur = connection()
     with con:
-        cur.execute(f"""SELECT status, message_id FROM scheduled
-                        WHERE id = (SELECT MAX(id) FROM scheduled WHERE uid = {uid}) - 1""")
-        return cur.fetchone()
+        query_1 = f"SELECT MAX(id) FROM scheduled WHERE uid = {uid}"
+        log.debug(query_1)
+        cur.execute(query_1)
+        result = cur.fetchone()
+        log.debug(result)
+        if result:
+            pref_message_id = int(result[0]) - 1
+            query = f"""SELECT status, message_id FROM scheduled WHERE id = {pref_message_id}"""
+            log.info(query)
+            cur.execute(query)
+            return cur.fetchone()
+        else:
+            return None
 
 
 def set_notification_sent(notification_id):
@@ -211,8 +221,10 @@ def update_message_id(notification_id, message_id):
 def add_notification(current, next_datetime, step_id):
     con, cur = connection()
     with con:
-        cur.execute(f"""INSERT INTO scheduled (message_type, uid, scheduled_time, step_id)
-                        VALUES ('{current.type}', {current.uid}, '{next_datetime}', {step_id})""")
+        query = f"""INSERT INTO scheduled (message_type, uid, scheduled_time, step_id)
+                        VALUES ('{current.type}', {current.uid}, '{next_datetime}', {step_id})"""
+        log.info(query)
+        cur.execute(query)
         return True
 
 
