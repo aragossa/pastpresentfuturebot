@@ -23,7 +23,7 @@ class Botuser:
         log.info(query_result)
         if query_result is not None:
             status = query_result[0]
-            message_id = int(query_result[1]) - 1
+            message_id = query_result[1]
         else:
             status = None
             message_id = None
