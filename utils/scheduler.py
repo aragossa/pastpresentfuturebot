@@ -169,7 +169,7 @@ def check_pending(bot):
                 log.info('message sent')
                 set_notification_sent(notification_id=current.id)
                 update_message_id(notification_id=current.id, message_id=msg.message_id)
-                if prev_status != 'COMPLITE':
+                if prev_status != 'COMPLITE' and prev_message_id is not None:
                     log.info(f"{current.uid}, {prev_message_id}")
                     bot.delete_message(chat_id=current.uid, message_id=prev_message_id)
                 prepare_next_notification(current)
