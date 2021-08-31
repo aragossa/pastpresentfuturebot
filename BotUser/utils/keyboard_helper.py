@@ -26,22 +26,46 @@ def get_request_keyboard(next_notification_state, notification_id):
 
 def get_main_keyboard():
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    # Настройки
     button_text_config = db_connector.get_message_text_by_id(6)
     btn1 = types.KeyboardButton(button_text_config)
+    # Анализ
     button_text_analyse = db_connector.get_message_text_by_id(8)
     btn2 = types.KeyboardButton(button_text_analyse)
+    # Оценить состояние
     button_text_analyse = db_connector.get_message_text_by_id(9)
     btn3 = types.KeyboardButton(button_text_analyse)
-    button_text_analyse_dyn = db_connector.get_message_text_by_id(11)
-    btn4 = types.KeyboardButton(button_text_analyse_dyn)
+    # Анализ в динамике
+    # button_text_analyse_dyn = db_connector.get_message_text_by_id(11)
+    # btn4 = types.KeyboardButton(button_text_analyse_dyn)
+    # Поделиться
     button_text_share = db_connector.get_message_text_by_id(12)
     btn5 = types.KeyboardButton(button_text_share)
+    # Мануал
     button_text_manual = db_connector.get_message_text_by_id(13)
     btn6 = types.KeyboardButton(button_text_manual)
 
-    keyboard.add(btn1, btn2, btn3, btn4, btn5, btn6)
+    keyboard.add(btn2, btn3)
+    keyboard.add(btn6, btn5, btn1)
     return keyboard
 
+def get_submenu_manual_keyboard():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    button_text_user_state = db_connector.get_message_text_by_id(14)
+    btn1 = types.KeyboardButton(button_text_user_state)
+    button_text_button_descriprion = db_connector.get_message_text_by_id(18)
+    btn2 = types.KeyboardButton(button_text_button_descriprion)
+    keyboard.add(btn1, btn2)
+    return keyboard
+
+def get_submenu_analysis_keyboard():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    button_text_analysis = db_connector.get_message_text_by_id(15)
+    btn1 = types.KeyboardButton(button_text_analysis)
+    button_text_dynamic_analysis = db_connector.get_message_text_by_id(16)
+    btn2 = types.KeyboardButton(button_text_dynamic_analysis)
+    keyboard.add(btn1, btn2)
+    return keyboard
 
 def get_settings_keyboard():
     keyboard = types.InlineKeyboardMarkup()

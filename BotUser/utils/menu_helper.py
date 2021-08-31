@@ -2,7 +2,8 @@ import datetime
 import os
 import time
 
-from BotUser.utils.keyboard_helper import get_main_keyboard, get_request_keyboard
+from BotUser.utils.keyboard_helper import get_main_keyboard, get_request_keyboard, get_submenu_manual_keyboard, \
+    get_submenu_analysis_keyboard
 from utils import db_connector
 from utils.db_connector import increment_answers, get_user_state, update_user_state, update_notification_count
 from utils.logger import get_logger
@@ -51,12 +52,6 @@ def add_user(bot, message):
 def text_message_handle(bot, message):
     user = Botuser(message.chat.id)
     log.info(f"User state is {check_user_state_input(user.uid)}")
-    # if check_user_state_input(user.uid):
-    #     update_notification_count(user.uid, message.text)
-    #     update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-    #     message_text = db_connector.get_message_text_by_id(10)
-    #     bot.send_message(chat_id=user.uid, text=message_text, reply_to_message_id=message.message_id)
-    #     log.info("STATE RESET")
 
     if message.text == db_connector.get_message_text_by_id(6):
         """ Меню настроки """
@@ -70,16 +65,6 @@ def text_message_handle(bot, message):
         # time.sleep(5)
         # bot.edit_message_text(chat_id=msg.chat.id, message_id=msg.message_id, text="test")
 
-    elif message.text == db_connector.get_message_text_by_id(8):
-        """ Меню анализ """
-
-        file_name = user.prepare_results()
-        img = open(file_name, 'rb')
-        bot.send_photo(user.uid, img, reply_to_message_id=message.message_id)
-        os.remove(file_name)
-        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-        log.info("STATE RESET")
-
     elif message.text == db_connector.get_message_text_by_id(9):
         """ Меню оценить состояние """
 
@@ -91,10 +76,61 @@ def text_message_handle(bot, message):
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
 
+    elif message.text == db_connector.get_message_text_by_id(12):
+        """ Меню поделиться """
+        bot.send_message(user.uid, f"Ссылка для подключения к боту t.me/pronabudbot?start={user.uid}")
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        log.info("STATE RESET")
 
-    elif message.text == db_connector.get_message_text_by_id(11):
-        """ Меню анализ в динамике """
+    elif message.text == db_connector.get_message_text_by_id(13):
+        """ Меню мануал """
+        keyboard = get_submenu_manual_keyboard()
+        message_text = db_connector.get_message_text_by_id(13)
+        bot.send_message(user.uid, message_text, reply_markup=keyboard)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        log.info("STATE RESET")
 
+    elif message.text == db_connector.get_message_text_by_id(8):
+        """ Меню анализ """
+        keyboard = get_submenu_analysis_keyboard()
+        message_text = db_connector.get_message_text_by_id(8)
+        bot.send_message(user.uid, message_text, reply_markup=keyboard)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        log.info("STATE RESET")
+
+    elif message.text == db_connector.get_message_text_by_id(14):
+        """ Подменю Для чего оценивать состояние """
+        keyboard = get_main_keyboard()
+        message_text = db_connector.get_message_text_by_id(17)
+        bot.send_message(user.uid, message_text)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        bot.send_message(chat_id=user.uid, text="меню", reply_markup=keyboard)
+        log.info("STATE RESET")
+
+    elif message.text == db_connector.get_message_text_by_id(18):
+        """ Подменю Для чего оценивать состояние """
+        keyboard = get_main_keyboard()
+        message_text = db_connector.get_message_text_by_id(20)
+        bot.send_message(user.uid, message_text)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        bot.send_message(chat_id=user.uid, text="меню", reply_markup=keyboard)
+        log.info("STATE RESET")
+
+    elif message.text == db_connector.get_message_text_by_id(15):
+        """ Подменю анализ """
+        keyboard = get_main_keyboard()
+        file_name = user.prepare_results()
+        img = open(file_name, 'rb')
+        bot.send_photo(user.uid, img, reply_to_message_id=message.message_id)
+        os.remove(file_name)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        bot.send_message(chat_id=user.uid, text="меню", reply_markup=keyboard)
+        log.info("STATE RESET")
+
+
+    elif message.text == db_connector.get_message_text_by_id(16):
+        """ Подменю анализ в динамике """
+        keyboard = get_main_keyboard()
         gif_file_name, file_names = user.prepare_results_dyn()
 
         img = open(gif_file_name, 'rb')
@@ -104,21 +140,7 @@ def text_message_handle(bot, message):
         for file_name in file_names:
             os.remove(file_name)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-        log.info("STATE RESET")
-
-
-    elif message.text == db_connector.get_message_text_by_id(12):
-        """ Меню поделиться """
-        bot.send_message(user.uid, f"Ссылка для подключения к боту t.me/pronabudbot?start={user.uid}")
-        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-        log.info("STATE RESET")
-
-    elif message.text == db_connector.get_message_text_by_id(13):
-        """ Меню мануал """
-
-        message_text = db_connector.get_message_text_by_id(14)
-        bot.send_message(user.uid, message_text)
-        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        bot.send_message(chat_id=user.uid, text="меню", reply_markup=keyboard)
         log.info("STATE RESET")
 
 
