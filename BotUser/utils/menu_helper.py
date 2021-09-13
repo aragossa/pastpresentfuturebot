@@ -109,6 +109,17 @@ def text_message_handle(bot, message):
 
     elif message.text == db_connector.get_message_text_by_id(18):
         """ Подменю Для чего оценивать состояние """
+
+        """
+         if len(r) > 4096:
+        for x in range(0, len(r), 4096):
+            bot.send_message(message.chat.id, '{}'.format(r[x:x + 4096]))
+            print(x)
+        else:
+            bot.send_message(message.chat.id, '{}'.format(r))
+        """
+
+
         keyboard = get_main_keyboard()
         message_text = db_connector.get_message_text_by_id(20)
         bot.send_message(user.uid, message_text)

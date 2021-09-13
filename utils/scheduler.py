@@ -141,7 +141,7 @@ def prepare_next_notification(current):
 
         add_notification(current=current, next_datetime=next_datetime_str, step_id=next_step)
 
-    elif current.step_id == notification_count:
+    else:
         log.info('Prepare next day notification')
         this_datetime = datetime.datetime.strptime(current.datetime, '%Y-%m-%d %H:%M:%S')
         next_datetime = this_datetime + datetime.timedelta(days=1)
