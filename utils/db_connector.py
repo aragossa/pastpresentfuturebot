@@ -216,8 +216,8 @@ def update_message_id(notification_id, message_id):
 def add_notification(current, next_datetime, step_id):
     con, cur = connection()
     with con:
-        query = f"""INSERT INTO scheduled (message_type, uid, scheduled_time, step_id)
-                        VALUES ('{current.type}', {current.uid}, '{next_datetime}', {step_id})"""
+        query = f"""INSERT INTO scheduled (message_type, uid, scheduled_time, step_id, status)
+                        VALUES ('{current.type}', {current.uid}, '{next_datetime}', {step_id}, 'NEW')"""
         log.info(query)
         cur.execute(query)
         return True

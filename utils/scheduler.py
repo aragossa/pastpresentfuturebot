@@ -70,33 +70,32 @@ def check_period(check_datetime):
     log.info(status)
 
     if start_day <= check_datetime < period_1_start:
-        log.info(f"""state 1""")
-        log.info(f"""{period_1_start} {status}""")
+        log.info(f"""Next period is {period_1_start} {status}""")
         return period_1_start, status
 
     elif period_1_start <= check_datetime < period_1_finish:
-        log.info(f"""{check_datetime} {status}""")
+        log.info(f"""Next period is {check_datetime} {status}""")
         return check_datetime, status
 
     elif period_1_finish <= check_datetime < period_2_start:
-        log.info(f"""{period_2_start} {status}""")
+        log.info(f"""Next period is {period_2_start} {status}""")
         return period_2_start, status
 
     elif period_2_start <= check_datetime < period_2_finish:
-        log.info(f"""{check_datetime} {status}""")
+        log.info(f"""Next period is {check_datetime} {status}""")
         return check_datetime, status
 
     elif period_2_finish <= check_datetime < period_3_start:
-        log.info(f"""{period_3_start} {status}""")
+        log.info(f"""Next period is {period_3_start} {status}""")
         return period_3_start, status
 
     elif period_3_start <= check_datetime < period_3_finish:
-        log.info(f"""{check_datetime} {status}""")
+        log.info(f"""Next period is {check_datetime} {status}""")
         return check_datetime, status
 
     elif period_3_finish <= check_datetime <= fin_day:
         status = "stop"
-        log.info(f"""{period_3_finish} {status}""")
+        log.info(f"""Next period is {period_3_finish} {status}""")
         return period_3_finish, status
 
 
@@ -114,7 +113,7 @@ def prepare_first_notification(uid):
     next_datetime = this_datetime + datetime.timedelta(days=1)
     next_datetime_str = next_datetime.strftime('%Y-%m-%d')
     log.info(f"current.step_id {current.step_id}")
-    add_notification(current=current, next_datetime=f'{next_datetime_str} 09:00:00', step_id=current.step_id + 1)
+    add_notification(current=current, next_datetime=f'{next_datetime_str} 08:00:00', step_id=current.step_id + 1)
 
 
 def prepare_next_notification(current):
