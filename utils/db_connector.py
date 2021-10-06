@@ -206,6 +206,14 @@ def set_notification_complite(notification_id):
                         WHERE id = {notification_id}""")
         return True
 
+def set_notification_blocked(notification_id):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""UPDATE scheduled SET status = 'BLOCKED'
+                        WHERE id = {notification_id}""")
+        return True
+
+
 def update_message_id(notification_id, message_id):
     con, cur = connection()
     with con:
