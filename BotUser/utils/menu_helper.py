@@ -194,8 +194,10 @@ def callback_handler(bot, call):
     log.info(f"lenght of data - {len(data)}")
     log.info(f"formatted_data {formatted_data}")
     if len(data) == 5:
+
         next_notification_state = False
-    user.set_notification_complite(notification_id)
+    else:
+        user.set_notification_complite(notification_id)
     log.info(f"next notification state - {next_notification_state}")
     creation_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     log.info(f"creation_date {creation_date}")
