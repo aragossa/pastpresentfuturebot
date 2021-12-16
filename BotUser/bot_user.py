@@ -189,4 +189,5 @@ class Botuser:
         users = []
         for curr_result in query_result:
             users.append(curr_result[0])
+        log.info(users)
         return users
