@@ -129,7 +129,7 @@ def prepare_next_notification(current):
         minutes_left_delta = 0
     log.info(f"notification_count:{notification_count}, minutes_delta:{minutes_left_delta}, whole_time: {whole_time_left}")
     log.info(f"current {current.step_id}")
-    if (current.step_id <= notification_count - 1) or minutes_left_delta > 0:
+    if (current.step_id <= notification_count - 1) or minutes_left_delta >= 20:
         log.info('Prepare today notification')
         next_datetime = (datetime.datetime.now() + datetime.timedelta(minutes=minutes_left_delta))
         log.info(f"next_datetime {next_datetime}")
