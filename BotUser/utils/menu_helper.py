@@ -3,7 +3,7 @@ import os
 import time
 
 from BotUser.utils.keyboard_helper import get_main_keyboard, get_request_keyboard, get_submenu_manual_keyboard, \
-    get_submenu_analysis_keyboard
+    get_submenu_analysis_keyboard, get_survey_keyboard
 from utils import db_connector
 from utils.db_connector import increment_answers, get_user_state, update_user_state, update_notification_count
 from utils.logger import get_logger
@@ -210,3 +210,22 @@ def callback_handler(bot, call):
 
 def ref(bot, message):
     user = Botuser(message.chat.id)
+
+def survey_results(bot, call):
+    log.info(f"Survey results {call.message.chat.id} - {call.data}")
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=('Спасибо за участие'))
+
+def prepare_survey(bot, message):
+    user = Botuser(message.chat.id)
+    keyboard = get_survey_keyboard()
+    text = """
+Привет, это Саша. 
+Бот упал, сорян😬, уже чиним».
+
+Если найдёшь время, ответь пожалуйста, были какие-то инсайты после использования бота или нет. Другими словами, получил ты какую-то пользу или нет?
+Ответ мне нужен, чтобы не улетать в илюзии и принимать решения о развитие проекта на основании фидбэка, а не ожиданий."""
+    users = user.get_bot_active_users()
+    for curr_user in users:
+        log.info(f'sending survey to user {user}')
+        bot.send_message(curr_user, text=text, reply_markup=keyboard)
+        time.sleep(1)

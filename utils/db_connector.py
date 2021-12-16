@@ -238,3 +238,8 @@ def get_max_notification_id():
         return int(cur.fetchone()[0]) + 1
 
 
+def get_bot_active_users():
+    con, cur = connection()
+    with con:
+        cur.execute("SELECT uid FROM scheduled WHERE status = 'New'")
+        return cur.fetchall()

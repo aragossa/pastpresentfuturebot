@@ -75,3 +75,10 @@ def get_settings_keyboard():
     btn4 = types.InlineKeyboardButton(text='4', callback_data='set_4')
     keyboard.add(btn1, btn2, btn3, btn4)
     return keyboard
+
+def get_survey_keyboard():
+    keyboard = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(text='ДА', callback_data=f'surv_y')
+    btn2 = types.InlineKeyboardButton(text='НЕТ', callback_data=f'surv_n')
+    keyboard.add(btn1, btn2)
+    return keyboard

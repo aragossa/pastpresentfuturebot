@@ -183,3 +183,10 @@ class Botuser:
 
     def set_notification_complite(self, notification_id):
         db_connector.set_notification_complite(notification_id)
+
+    def get_bot_active_users(self):
+        query_result = db_connector.get_bot_active_users()
+        users = []
+        for curr_result in query_result:
+            users.append(curr_result[0])
+        return users
