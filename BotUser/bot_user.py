@@ -14,8 +14,11 @@ log = get_logger("bot_user")
 
 class Botuser:
 
-    def __init__(self, uid):
+    def __init__(self, uid, username, first_name, last_name):
         self.uid = uid
+        self.username = 'None' if username is None else username
+        self.first_name = 'None' if first_name is None else first_name
+        self.last_name = 'None' if last_name is None else last_name
 
     @staticmethod
     def get_last_notification_status(uid):

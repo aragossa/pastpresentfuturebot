@@ -28,7 +28,10 @@ def check_user_state_input(uid):
 
 
 def add_user(bot, message):
-    user = Botuser(message.chat.id)
+    user = Botuser(uid=message.chat.id,
+                   username=message.chat.username,
+                   first_name=message.chat.first_name,
+                   last_name=message.chat.last_name)
     keyboard = get_main_keyboard()
     log.info(f"{user.check_auth()}")
 
@@ -50,7 +53,10 @@ def add_user(bot, message):
 
 
 def text_message_handle(bot, message):
-    user = Botuser(message.chat.id)
+    user = Botuser(uid=message.chat.id,
+                   username=message.chat.username,
+                   first_name=message.chat.first_name,
+                   last_name=message.chat.last_name)
     log.info(f"User state is {check_user_state_input(user.uid)}")
 
     if message.text == db_connector.get_message_text_by_id(6):
@@ -172,7 +178,10 @@ def text_message_handle(bot, message):
 
 
 def update_settings(bot, call):
-    user = Botuser(call.message.chat.id)
+    user = Botuser(uid=call.message.chat.id,
+                   username=call.message.chat.username,
+                   first_name=call.message.chat.first_name,
+                   last_name=call.message.chat.last_name)
     data = call.data[4:]
     db_connector.update_notification_count(user.uid, data)
     message_text = db_connector.get_message_text_by_id(5)
@@ -181,7 +190,10 @@ def update_settings(bot, call):
 
 # SELECT COUNT("past_m") FROM results WHERE "creation_date" > "2021-06-08 15:00:00"
 def callback_handler(bot, call):
-    user = Botuser(call.message.chat.id)
+    user = Botuser(uid=call.message.chat.id,
+                   username=call.message.chat.username,
+                   first_name=call.message.chat.first_name,
+                   last_name=call.message.chat.last_name)
     log.info(call.data)
     data = call.data.split("_")
     formatted_data = f"""{data[1]}_{data[2]}"""
@@ -209,14 +221,20 @@ def callback_handler(bot, call):
     #     prepare_next_notification(current)
 
 def ref(bot, message):
-    user = Botuser(message.chat.id)
+    user = Botuser(uid=message.chat.id,
+                   username=message.chat.username,
+                   first_name=message.chat.first_name,
+                   last_name=message.chat.last_name)
 
 def survey_results(bot, call):
     log.info(f"Survey results {call.message.chat.id} - {call.data}")
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=('Спасибо за участие'))
 
 def prepare_survey(bot, message):
-    user = Botuser(message.chat.id)
+    user = Botuser(uid=message.chat.id,
+                   username=message.chat.username,
+                   first_name=message.chat.first_name,
+                   last_name=message.chat.last_name)
     keyboard = get_survey_keyboard()
     text = """
 Привет, это Саша. 
