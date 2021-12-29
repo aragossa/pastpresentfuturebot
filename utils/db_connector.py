@@ -181,6 +181,7 @@ def get_notifications():
                         AND status = 'NEW'""")
         return cur.fetchall()
 
+
 def get_last_notification_status(uid):
     con, cur = connection()
     with con:
@@ -193,12 +194,12 @@ def get_last_notification_status(uid):
         return cur.fetchone()
 
 
-
 def set_notification_sent(notification_id):
     con, cur = connection()
     with con:
         cur.execute(f"""UPDATE scheduled SET status = 'SENT' WHERE id = {notification_id} """)
         return True
+
 
 def set_notification_complite(notification_id):
     con, cur = connection()
@@ -206,6 +207,7 @@ def set_notification_complite(notification_id):
         cur.execute(f"""UPDATE scheduled SET status = 'COMPLITE'
                         WHERE id = {notification_id}""")
         return True
+
 
 def set_notification_blocked(notification_id):
     con, cur = connection()
@@ -243,4 +245,11 @@ def get_bot_active_users():
     con, cur = connection()
     with con:
         cur.execute("SELECT uid FROM scheduled WHERE status = 'NEW'")
+        return cur.fetchall()
+
+
+def get_bot_users():
+    con, cur = connection()
+    with con:
+        cur.execute("SELECT id, username, first_name, last_name, joined_at FROM users")
         return cur.fetchall()

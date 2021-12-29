@@ -247,3 +247,29 @@ def prepare_survey(bot, message):
         log.info(f'sending survey to user {user}')
         bot.send_message(curr_user, text=text, reply_markup=keyboard)
         time.sleep(1)
+
+
+def get_users_stat(bot, message):
+    user = Botuser(uid=message.chat.id,
+                   username=message.chat.username,
+                   first_name=message.chat.first_name,
+                   last_name=message.chat.last_name)
+    users_info = db_connector.get_bot_users()
+    for curr_user in users_info:
+        log.debug(curr_user)
+
+        last_notification = db_connector.select_last_notification(curr_user[0])
+        message_text = f"""Информация о пользователе:
+id:{curr_user[0]}, username:{curr_user[1]},  first_name:{curr_user[2]}, last_name:{curr_user[3]}
+Дата подключения: {curr_user[4]}
+Последнее использование: {last_notification[3]}"""
+        if last_notification[4] == 'BLOCKED':
+            message_text += """\nПользователь заблокировал бота"""
+        log.debug(last_notification)
+        time.sleep(1)
+        bot.send_message(chat_id=user.uid, text=message_text)
+
+    if user.uid in [121013858, 556047985]:
+        """ prepare users stat"""
+    else:
+        bot.send_message(chat_id=message.chat.id, text='У Вас нет прав админа')

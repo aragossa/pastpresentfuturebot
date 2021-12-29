@@ -33,6 +33,18 @@ def set_username(m):
         bot.send_message(m.chat.id,
                          'Имя пользователя не указано. Используйте команду\n\n/setusername Ваше_Имя_Пользователя ')
 
+
+@bot.message_handler(commands=['get_users_stat'])
+def get_users_stat(m):
+    try:
+        menu_helper.get_users_stat(bot=bot, message=m)
+    except:
+        log.exception(m)
+        log.exception('Got exception on main handler')
+        bot.send_message(m.chat.id,
+                         'Имя пользователя не указано. Используйте команду\n\n/setusername Ваше_Имя_Пользователя ')
+
+
 @bot.message_handler(content_types='text')
 def simple_text_message(m):
     try:
