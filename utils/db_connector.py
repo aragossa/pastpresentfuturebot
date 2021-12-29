@@ -123,7 +123,7 @@ def add_user(uid, username, first_name, last_name, refer_id):
 
     with con:
         cur.execute(f"""INSERT INTO users (id, username, first_name, last_name)
-                        VALUES ({uid}, {username}, {first_name}, {last_name})""")
+                        VALUES ({uid}, '{username}', '{first_name}', '{last_name}')""")
         if refer_id is not None:
             log.info("found refer_id")
             cur.execute(f"""INSERT INTO users_state (id, refer_id) VALUES ({uid}, {refer_id})""")
