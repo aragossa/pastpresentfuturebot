@@ -2,6 +2,7 @@ import datetime
 import os
 import time
 
+from BotUser.utils.get_stats import UserStats
 from BotUser.utils.keyboard_helper import get_main_keyboard, get_request_keyboard, get_submenu_manual_keyboard, \
     get_submenu_analysis_keyboard, get_survey_keyboard
 from utils import db_connector
@@ -49,6 +50,16 @@ def add_user(bot, message):
             user.add_user()
         message_text = db_connector.get_message_text_by_id(3)
         bot.send_message(user.uid, message_text, reply_markup=keyboard)
+        time.sleep(1)
+        new_user_notification = f"""Подключился новый пользователь:
+id: {user.uid},
+username: {user.username},
+first_name: {user.first_name},
+last_name: {user.last_name}"""
+        bot.send_message(121013858, new_user_notification)
+        time.sleep(1)
+        bot.send_message(556047985, new_user_notification)
+
         prepare_first_notification(user.uid)
 
 
@@ -249,27 +260,43 @@ def prepare_survey(bot, message):
         time.sleep(1)
 
 
+def get_stats(bot, message):
+    user = Botuser(uid=message.chat.id,
+                   username=message.chat.username,
+                   first_name=message.chat.first_name,
+                   last_name=message.chat.last_name)
+    if user.uid in [121013858, 556047985]:
+        stats = UserStats()
+        get_stats = stats.get_stats()
+        blocked = stats.get_blocked_users()
+        yestarday = stats.get_yestarday_users()
+        bot.send_message(chat_id=message.chat.id, text=blocked)
+        bot.send_message(chat_id=message.chat.id, text=yestarday)
+        bot.send_message(chat_id=message.chat.id, text=get_stats)
+
+    else:
+        bot.send_message(chat_id=message.chat.id, text='У Вас нет прав админа')
+
 def get_users_stat(bot, message):
     user = Botuser(uid=message.chat.id,
                    username=message.chat.username,
                    first_name=message.chat.first_name,
                    last_name=message.chat.last_name)
-    users_info = db_connector.get_bot_users()
-    for curr_user in users_info:
-        log.debug(curr_user)
-
-        last_notification = db_connector.select_last_notification(curr_user[0])
-        message_text = f"""Информация о пользователе:
-id:{curr_user[0]}, username:{curr_user[1]},  first_name:{curr_user[2]}, last_name:{curr_user[3]}
-Дата подключения: {curr_user[4]}
-Последнее использование: {last_notification[3]}"""
-        if last_notification[4] == 'BLOCKED':
-            message_text += """\nПользователь заблокировал бота"""
-        log.debug(last_notification)
-        time.sleep(1)
-        bot.send_message(chat_id=user.uid, text=message_text)
-
     if user.uid in [121013858, 556047985]:
-        """ prepare users stat"""
+        users_info = db_connector.get_bot_users()
+        for curr_user in users_info:
+            log.debug(curr_user)
+
+            last_notification = db_connector.select_last_notification(curr_user[0])
+            message_text = f"""Информация о пользователе:
+    id:{curr_user[0]}, username:{curr_user[1]},  first_name:{curr_user[2]}, last_name:{curr_user[3]}
+    Дата подключения: {curr_user[4]}
+    Последнее использование: {last_notification[3]}"""
+            if last_notification[4] == 'BLOCKED':
+                message_text += """\nПользователь заблокировал бота"""
+            log.debug(last_notification)
+            time.sleep(1)
+            bot.send_message(chat_id=user.uid, text=message_text)
+
     else:
         bot.send_message(chat_id=message.chat.id, text='У Вас нет прав админа')

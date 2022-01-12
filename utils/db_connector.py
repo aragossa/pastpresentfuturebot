@@ -253,3 +253,95 @@ def get_bot_users():
     with con:
         cur.execute("SELECT id, username, first_name, last_name, joined_at FROM users")
         return cur.fetchall()
+
+
+""" Users stats """
+
+
+def bot_installs():
+    con, cur = connection()
+    with con:
+        cur.execute("select max(joined_at) from users")
+        last_install_date = cur.fetchone()[0]
+        cur.execute("select min(joined_at) from users")
+        first_install_date = cur.fetchone()[0]
+        cur.execute("select count(*) from users")
+        users_count = cur.fetchone()[0]
+        return users_count, first_install_date, last_install_date
+
+
+def get_avg_uses():
+    con, cur = connection()
+    with con:
+        cur.execute("SELECT COUNT(DISTINCT DATE(creation_date)) FROM results")
+        return cur.fetchone()[0]
+
+
+def get_blocked_users():
+    con, cur = connection()
+    with con:
+        cur.execute("""select distinct u.id, u.username, u.first_name, u.last_name
+                       from scheduled s
+                       left join users u on u.id = s.uid
+                       where s.status = 'BLOCKED' """)
+        return cur.fetchall()
+
+
+def get_yesterday_users():
+    con, cur = connection()
+    with con:
+        cur.execute("""select distinct u.id, u.username, u.first_name, u.last_name
+                       from results r
+                       left join users u on u.id = r.id
+                       where DATE(creation_date) = DATE('now', '-1 day')""")
+        return cur.fetchall()
+
+
+def get_usage_density():
+    con, cur = connection()
+    with con:
+        cur.execute("select id from users")
+        user_list = cur.fetchall()
+    user_data = []
+    for user in user_list:
+        cur.execute(f"select count(*) from results where id = {user[0]}")
+        results_count = cur.fetchone()[0]
+        cur.execute(f"""select  u.notification_count as notification_count,
+                                max(s.scheduled_time) as max,
+                                min(s.scheduled_time) as min,
+                                u.id as uid
+                       from users u
+                       left join scheduled s on s.uid = u.id
+                       where u.id = {user[0]}""")
+
+        user_data.append({'results_count': results_count, 'user_data': cur.fetchone()})
+    return user_data
+
+
+def get_avg_days_block():
+    con, cur = connection()
+    users_data = []
+    with con:
+        cur.execute("select uid, scheduled_time from scheduled where status = 'BLOCKED'")
+        query_result = cur.fetchall()
+        for user_data in query_result:
+            cur.execute(f"select joined_at from users where id = {user_data[0]}")
+            join_date = cur.fetchone()[0]
+            users_data.append({'uid': user_data[0], 'block_date': user_data[1], 'join_date': join_date})
+    return users_data
+
+
+def get_avg_days_usage():
+    con, cur = connection()
+    users_data = []
+    with con:
+        cur.execute("select id from users")
+        user_list = cur.fetchall()
+
+        for user in user_list:
+            cur.execute(f"""select distinct date(scheduled_time) from scheduled
+                            where status = 'COMPLITE' and uid = {user[0]}
+                            order by scheduled_time""")
+            user_usage = cur.fetchall()
+            users_data.append({'uid': user[0], 'usage_data': user_usage})
+    return users_data

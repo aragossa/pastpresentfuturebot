@@ -24,14 +24,25 @@ def command_start_handler(m):
         bot.send_message(m.chat.id, 'Что-то пошло не так')
 
 @bot.message_handler(commands=['adminadminsendsurveyadminadmin'])
-def set_username(m):
+def send_survey(m):
     try:
         menu_helper.prepare_survey(bot=bot, message=m)
     except:
         log.exception(m)
         log.exception('Got exception on main handler')
         bot.send_message(m.chat.id,
-                         'Имя пользователя не указано. Используйте команду\n\n/setusername Ваше_Имя_Пользователя ')
+                         'Что-то пошло не так')
+
+
+@bot.message_handler(commands=['adminadmingetstatsadminadmin'])
+def get_stats(m):
+    try:
+        menu_helper.get_stats(bot=bot, message=m)
+    except:
+        log.exception(m)
+        log.exception('Got exception on main handler')
+        bot.send_message(m.chat.id,
+                         'Что-то пошло не так')
 
 
 @bot.message_handler(commands=['get_users_stat'])
