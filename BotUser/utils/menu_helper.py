@@ -187,6 +187,7 @@ def text_message_handle(bot, message):
         prepared_message_text = f"""Вопрос от пользователя {user.username} ({user.first_name} {user.last_name}):
 {message.text}"""
         bot.send_message(chat_id=556047985, text=prepared_message_text, reply_markup=keyboard)
+        bot.send_message(chat_id=121013858, text=prepared_message_text, reply_markup=keyboard)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
 
