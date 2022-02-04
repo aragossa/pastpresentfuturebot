@@ -4,7 +4,7 @@ import time
 
 from BotUser.utils.get_stats import UserStats
 from BotUser.utils.keyboard_helper import get_main_keyboard, get_request_keyboard, get_submenu_manual_keyboard, \
-    get_submenu_analysis_keyboard, get_survey_keyboard
+    get_submenu_analysis_keyboard, get_survey_keyboard, get_question_keyboard
 from utils import db_connector
 from utils.db_connector import increment_answers, get_user_state, update_user_state, update_notification_count
 from utils.logger import get_logger
@@ -25,7 +25,11 @@ def is_int(str):
 
 def check_user_state_input(uid):
     if get_user_state(uid=uid)[0] == "INPUT":
-        return True
+        return "INPUT"
+    elif get_user_state(uid=uid)[0] == "INPUT_QUESTION":
+        return "INPUT_QUESTION"
+    elif get_user_state(uid=uid)[0] == "REPLY_TO":
+        return "REPLY_TO"
 
 
 def add_user(bot, message):
@@ -116,32 +120,19 @@ def text_message_handle(bot, message):
         log.info("STATE RESET")
 
     elif message.text == db_connector.get_message_text_by_id(14):
-        """ Подменю Для чего оценивать состояние """
+        """ Подменю Вопрос автору """
         keyboard = get_main_keyboard()
         message_text = db_connector.get_message_text_by_id(17)
-        bot.send_message(user.uid, message_text)
-        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-        bot.send_message(chat_id=user.uid, text="меню", reply_markup=keyboard)
+        update_user_state(uid=user.uid, state="INPUT_QUESTION", input_value="NULL")
+        bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
         log.info("STATE RESET")
 
     elif message.text == db_connector.get_message_text_by_id(18):
-        """ Подменю Для чего оценивать состояние """
-
-        """
-         if len(r) > 4096:
-        for x in range(0, len(r), 4096):
-            bot.send_message(message.chat.id, '{}'.format(r[x:x + 4096]))
-            print(x)
-        else:
-            bot.send_message(message.chat.id, '{}'.format(r))
-        """
-
-
+        """ Подменю Описание кнопок """
         keyboard = get_main_keyboard()
         message_text = db_connector.get_message_text_by_id(20)
-        bot.send_message(user.uid, message_text)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-        bot.send_message(chat_id=user.uid, text="меню", reply_markup=keyboard)
+        bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
         log.info("STATE RESET")
 
     elif message.text == db_connector.get_message_text_by_id(15):
@@ -173,7 +164,8 @@ def text_message_handle(bot, message):
 
 
 
-    elif check_user_state_input(user.uid):
+    elif check_user_state_input(user.uid) == "INPUT":
+        """ Обработка количества уведомлений пользователю """
         log.info(f"message.text is int {is_int(message.text)}")
         if is_int(message.text):
             update_notification_count(user.uid, message.text)
@@ -186,6 +178,27 @@ def text_message_handle(bot, message):
             bot.send_message(chat_id=user.uid, text="Нужно указать целое число",
                              reply_to_message_id=message.message_id)
             log.info("STATE RESET")
+
+    elif check_user_state_input(user.uid) == "INPUT_QUESTION":
+        """ Обработка вопроса автору """
+        keyboard = get_question_keyboard(uid=user.uid, message_id=message.id)
+        bot.send_message(chat_id=user.uid, text="Ваш вопрос отправлен",
+                             reply_to_message_id=message.message_id)
+        prepared_message_text = f"""Вопрос от пользователя {user.username} ({user.first_name} {user.last_name}):
+{message.text}"""
+        bot.send_message(chat_id=556047985, text=prepared_message_text, reply_markup=keyboard)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        log.info("STATE RESET")
+
+    elif check_user_state_input(user.uid) == "REPLY_TO":
+        log.debug(get_user_state(uid=user.uid))
+        formatted_data = get_user_state(uid=user.uid)[1]
+        log.debug(formatted_data)
+        recipient_uid = formatted_data.split('_')[0]
+        recipient_message_id = formatted_data.split('_')[1]
+        prepared_message_text = f"""Саша Зеленин:\n{message.text}"""
+        bot.send_message(chat_id=recipient_uid, text=prepared_message_text, reply_to_message_id=recipient_message_id)
+
 
 
 def update_settings(bot, call):
@@ -300,3 +313,12 @@ def get_users_stat(bot, message):
 
     else:
         bot.send_message(chat_id=message.chat.id, text='У Вас нет прав админа')
+
+
+def question_reply(bot, call):
+    data = call.data.split("_")
+    log.debug(call)
+    formatted_data = f"""{data[1]}_{data[2]}"""
+    update_user_state(uid=call.message.chat.id, state="REPLY_TO", input_value=formatted_data)
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=call.message.text)
+    bot.send_message(chat_id=call.message.chat.id, text="Введите ответ:")

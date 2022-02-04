@@ -12,8 +12,6 @@ TOKEN = get_api_token()
 bot = telebot.TeleBot(TOKEN)
 
 
-"t.me/Madbetbot?start=3f4f2bd6-fdf5-49d3-9a0c-1b3d630d7de2"
-
 @bot.message_handler(commands=['start'])
 def command_start_handler(m):
     try:
@@ -94,6 +92,15 @@ def vote_request(call):
         log.exception('Got exception on main handler')
         bot.send_message(call.message.chat.id, 'Что-то пошло не так')
 
+
+@bot.callback_query_handler(func=lambda call: call.data[:6] == 'reply_')
+def question_reply(call):
+    try:
+        menu_helper.question_reply(bot=bot, call=call)
+    except:
+        log.exception(call)
+        log.exception('Got exception on main handler')
+        bot.send_message(call.message.chat.id, 'Что-то пошло не так')
 
 if __name__ == '__main__':
     p1 = Process(target=check_pending, args=(bot,))

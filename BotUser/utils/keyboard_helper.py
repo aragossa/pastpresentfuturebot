@@ -82,3 +82,10 @@ def get_survey_keyboard():
     btn2 = types.InlineKeyboardButton(text='НЕТ', callback_data=f'surv_n')
     keyboard.add(btn1, btn2)
     return keyboard
+
+def get_question_keyboard(uid, message_id):
+    keyboard = types.InlineKeyboardMarkup()
+    log.debug(f'reply_{uid}_{message_id}')
+    btn1 = types.InlineKeyboardButton(text='Ответить', callback_data=f'reply_{uid}_{message_id}')
+    keyboard.add(btn1)
+    return keyboard
