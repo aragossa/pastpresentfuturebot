@@ -10,7 +10,7 @@ from utils.scheduler import check_pending
 log = get_logger("main handler")
 TOKEN = get_api_token()
 bot = telebot.TeleBot(TOKEN)
-
+log.debug(TOKEN)
 
 @bot.message_handler(commands=['start'])
 def command_start_handler(m):

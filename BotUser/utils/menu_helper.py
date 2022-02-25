@@ -284,9 +284,11 @@ def get_stats(bot, message):
         get_stats = stats.get_stats()
         blocked = stats.get_blocked_users()
         yestarday = stats.get_yestarday_users()
+        top_refers = stats.top_refers()
         bot.send_message(chat_id=message.chat.id, text=blocked)
         bot.send_message(chat_id=message.chat.id, text=yestarday)
         bot.send_message(chat_id=message.chat.id, text=get_stats)
+        bot.send_message(chat_id=message.chat.id, text=top_refers)
 
     else:
         bot.send_message(chat_id=message.chat.id, text='У Вас нет прав админа')

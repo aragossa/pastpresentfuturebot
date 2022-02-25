@@ -1,7 +1,8 @@
 import datetime
+import operator
 
 from utils.db_connector import bot_installs, get_avg_uses, get_blocked_users, get_yesterday_users, get_usage_density, \
-    get_avg_days_block, get_avg_days_usage
+    get_avg_days_block, get_avg_days_usage, get_top_refers
 from utils.logger import get_logger
 
 log = get_logger("get_stats")
@@ -100,5 +101,30 @@ class UserStats():
 
         return one_week_users, two_week_users
 
-
-
+    def top_refers(self):
+        refer_list, result = get_top_refers()
+        user_list = []
+        for elem in result:
+            user_list.append(elem[0])
+        stats = {}
+        min_user = None
+        min_count = 0
+        for user in refer_list:
+            cur_min_user = user[0]
+            cur_min_count = user_list.count(cur_min_user)
+            if len(stats) >= 9:
+                if cur_min_count > min_count:
+                    stats[cur_min_user] = cur_min_count
+                    if min_user:
+                        stats.pop(min_user)
+                    min_user = cur_min_user
+                    min_count = cur_min_count
+            else:
+                stats[cur_min_user] = cur_min_count
+        message = "Топ 10 рефералов:\n"
+        c = 1
+        sorted_stats = dict(sorted(stats.items(), key=operator.itemgetter(1), reverse=True))
+        for uid, counts in sorted_stats.items():
+            message += f"{c}. {uid} - {counts}\n"
+            c += 1
+        return message

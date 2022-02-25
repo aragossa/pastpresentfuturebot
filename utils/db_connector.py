@@ -345,3 +345,19 @@ def get_avg_days_usage():
             user_usage = cur.fetchall()
             users_data.append({'uid': user[0], 'usage_data': user_usage})
     return users_data
+
+
+def get_top_refers():
+    con, cur = connection()
+    with con:
+        cur.execute("""select refer_id from users_state
+                        where refer_id is not null
+                        group by refer_id""")
+        refer_list = cur.fetchall()
+
+    cur.execute(f"""select refer_id from users_state
+                        where refer_id is not null""")
+    result = cur.fetchall()
+    return refer_list, result
+
+

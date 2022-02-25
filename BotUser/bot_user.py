@@ -54,15 +54,20 @@ class Botuser:
     def __plot_scatter(self, x, y, result, result_sum):
         if result > 15:
             size = 1500
+            color = '#191970'
         elif result > 10:
             size = 1000
+            color = '#00008B'
         elif result > 5:
             size = 600
+            color = '#4169E1'
         elif result == 0:
             size = 0
+            color = '#87CEEB'
         else:
             size = 100
-        plt.scatter(x, y, s=size)
+            color = '#87CEEB'
+        plt.scatter(x, y, s=size, c=color)
         if result > 0:
             plt.text(x + .5, y, f"{result} ({round(result / result_sum * 100, 2)}%)")
 
