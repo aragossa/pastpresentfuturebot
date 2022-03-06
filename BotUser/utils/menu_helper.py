@@ -274,6 +274,21 @@ def prepare_survey(bot, message):
         time.sleep(1)
 
 
+def send_text(bot, message):
+    user = Botuser(uid=message.chat.id,
+                   username=message.chat.username,
+                   first_name=message.chat.first_name,
+                   last_name=message.chat.last_name)
+    users = user.get_bot_active_users()
+    text = message.text.replace('/adminadminsendmessageadminadmin', '')
+    log.debug(text)
+    log.debug(users)
+    for curr_user in users:
+        log.info(f'sending text to user {user}')
+        bot.send_message(curr_user, text=text)
+        time.sleep(1)
+
+
 def get_stats(bot, message):
     user = Botuser(uid=message.chat.id,
                    username=message.chat.username,

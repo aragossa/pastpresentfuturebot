@@ -32,6 +32,18 @@ def send_survey(m):
                          'Что-то пошло не так')
 
 
+@bot.message_handler(commands=['adminadminsendmessageadminadmin'])
+def send_survey(m):
+    try:
+        menu_helper.send_text(bot=bot, message=m)
+    except:
+        log.exception(m)
+        log.exception('Got exception on main handler')
+        bot.send_message(m.chat.id,
+                         'Что-то пошло не так')
+
+
+
 @bot.message_handler(commands=['adminadmingetstatsadminadmin'])
 def get_stats(m):
     try:
