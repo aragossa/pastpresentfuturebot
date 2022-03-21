@@ -285,7 +285,7 @@ def send_text(bot, message):
     log.debug(users)
     for curr_user in users:
         log.info(f'sending text to user {user}')
-        bot.send_message(curr_user, text=text)
+        bot.send_message(curr_user, text=text, parse_mode= 'Markdown')
         time.sleep(1)
 
 
