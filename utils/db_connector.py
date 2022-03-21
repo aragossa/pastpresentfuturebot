@@ -280,10 +280,12 @@ def get_avg_uses():
 def get_blocked_users():
     con, cur = connection()
     with con:
-        cur.execute("""select distinct u.id, u.username, u.first_name, u.last_name
+        cur.execute("""select distinct u.id, u.username, u.first_name, u.last_name, s.scheduled_time
                        from scheduled s
                        left join users u on u.id = s.uid
-                       where s.status = 'BLOCKED' """)
+                       where s.status = 'BLOCKED'
+                       order by s.scheduled_time desc
+                       limit 30 """)
         return cur.fetchall()
 
 

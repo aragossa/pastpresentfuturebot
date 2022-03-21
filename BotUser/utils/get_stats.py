@@ -31,15 +31,15 @@ class UserStats():
         message = "Пользователи, заблокировавшие бота:\n"
         counter = 1
         for user in blocked_users_list:
-            message += f"{counter}. {user[0]}, {user[1]}, {user[2]}, {user[3]}\n"
+            message += f"{counter}. {user[0]}, {user[1]}, {user[2]}, {user[3]} {user[4]}\n"
             counter += 1
         return message
 
     def get_yestarday_users(self):
-        yestarday_users_list = get_yesterday_users()
+        yesterday_users_list = get_yesterday_users()
         message = "Пользователи, пользовавшиеся вчера:\n"
         counter = 1
-        for user in yestarday_users_list:
+        for user in yesterday_users_list:
             message += f"{counter}. {user[0]}, {user[1]}, {user[2]}, {user[3]}\n"
             counter += 1
         return message
@@ -57,7 +57,7 @@ class UserStats():
                 usage_percents.append(0)
             else:
                 result = results_count/(delta.days * notification_count)
-                usage_percents.append((result))
+                usage_percents.append(result)
         usage_density_percent = sum(usage_percents)/len(usage_percents)
         return round(usage_density_percent, 3) * 100
 
