@@ -2,7 +2,7 @@ import datetime
 import operator
 
 from utils.db_connector import bot_installs, get_avg_uses, get_blocked_users, get_yesterday_users, get_usage_density, \
-    get_avg_days_block, get_avg_days_usage, get_top_refers
+    get_avg_days_block, get_avg_days_usage, get_top_refers, get_avg_reponse
 from utils.logger import get_logger
 
 log = get_logger("get_stats")
@@ -15,6 +15,7 @@ class UserStats():
         usage_density_percent = self.get_usage_density()
         get_avg_days_block = self.get_avg_days_block()
         one_week_users, two_week_users = self.get_avg_days_usage()
+        avg_reponse = self.get_avg_reponse()
         message = f"""Всего скачиваний: {users_count} 
 Дата первой установки: {first_install_date}
 Дата последней установки: {last_install_date}
@@ -22,7 +23,8 @@ class UserStats():
 Средняя плотность использования: {usage_density_percent}%
 Среднее количество дней до блокировки: {get_avg_days_block}
 Количество пользователей больше недели: {len(one_week_users)}
-Количество пользователей больше 2х недель: {len(two_week_users)}"""
+Количество пользователей больше 2х недель: {len(two_week_users)}
+Среднее время ответа после пуша, мин: {avg_reponse}"""
 
         return message
 
@@ -75,6 +77,10 @@ class UserStats():
         if uid not in user_list:
             user_list.append(uid)
         return user_list
+
+    def get_avg_reponse(self):
+        avg_response = get_avg_reponse()
+        return  avg_response
 
     def get_avg_days_usage(self):
         users_data = get_avg_days_usage()

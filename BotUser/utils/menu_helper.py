@@ -5,19 +5,19 @@ import time
 from BotUser.utils.get_stats import UserStats
 from BotUser.utils.keyboard_helper import get_main_keyboard, get_request_keyboard, get_submenu_manual_keyboard, \
     get_submenu_analysis_keyboard, get_survey_keyboard, get_question_keyboard
+from BotUser.utils.send_message_timeout import send_message_timeout_five_times
 from utils import db_connector
 from utils.db_connector import increment_answers, get_user_state, update_user_state, update_notification_count
 from utils.logger import get_logger
 from BotUser.bot_user import Botuser
-from utils.notifications import Notification
-from utils.scheduler import prepare_first_notification, prepare_next_notification
+from utils.scheduler import prepare_first_notification
 
 log = get_logger("menu_helper")
 
 
-def is_int(str):
+def is_int(string):
     try:
-        int(str)
+        int(string)
         return True
     except ValueError:
         return False
@@ -40,11 +40,9 @@ def add_user(bot, message):
     keyboard = get_main_keyboard()
     log.info(f"{user.check_auth()}")
 
-    bot.send_message(user.uid, "test")
-
     if user.check_auth():
         message_text = db_connector.get_message_text_by_id(3)
-        bot.send_message(user.uid, message_text, reply_markup=keyboard)
+        send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
 
     else:
         if len(message.text.split()) > 1:
@@ -53,16 +51,17 @@ def add_user(bot, message):
         else:
             user.add_user()
         message_text = db_connector.get_message_text_by_id(3)
-        bot.send_message(user.uid, message_text, reply_markup=keyboard)
+        send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
+
         time.sleep(1)
         new_user_notification = f"""Подключился новый пользователь:
 id: {user.uid},
 username: {user.username},
 first_name: {user.first_name},
 last_name: {user.last_name}"""
-        bot.send_message(121013858, new_user_notification)
+        send_message_timeout_five_times(bot, 121013858, new_user_notification)
         time.sleep(1)
-        bot.send_message(556047985, new_user_notification)
+        send_message_timeout_five_times(bot, 556047985, new_user_notification)
 
         prepare_first_notification(user.uid)
 
@@ -81,10 +80,7 @@ def text_message_handle(bot, message):
         log.info("changing user state")
         update_user_state(uid=user.uid, state="INPUT", input_value="NULL")
         log.info("changed")
-        bot.send_message(user.uid, message_text)
-        # msg = bot.send_message(user.uid, message_text)
-        # time.sleep(5)
-        # bot.edit_message_text(chat_id=msg.chat.id, message_id=msg.message_id, text="test")
+        send_message_timeout_five_times(bot, user.uid, message_text)
 
     elif message.text == db_connector.get_message_text_by_id(9):
         """ Меню оценить состояние """
@@ -93,13 +89,14 @@ def text_message_handle(bot, message):
         next_notification_id = int(db_connector.select_last_notification(user.uid)[0]) + 1
         keyboard = get_request_keyboard(next_notification_state, next_notification_id)
         message_text = db_connector.get_message_text_by_id(7)
-        bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
+        send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
 
     elif message.text == db_connector.get_message_text_by_id(12):
         """ Меню поделиться """
-        bot.send_message(user.uid, f"Ссылка для подключения к боту t.me/pronabudbot?start={user.uid}")
+        send_message_timeout_five_times(bot, user.uid,
+                                        f"Ссылка для подключения к боту t.me/pronabudbot?start={user.uid}")
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
 
@@ -107,7 +104,7 @@ def text_message_handle(bot, message):
         """ Меню мануал """
         keyboard = get_submenu_manual_keyboard()
         message_text = db_connector.get_message_text_by_id(13)
-        bot.send_message(user.uid, message_text, reply_markup=keyboard)
+        send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
 
@@ -115,7 +112,7 @@ def text_message_handle(bot, message):
         """ Меню анализ """
         keyboard = get_submenu_analysis_keyboard()
         message_text = db_connector.get_message_text_by_id(8)
-        bot.send_message(user.uid, message_text, reply_markup=keyboard)
+        send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
 
@@ -124,7 +121,7 @@ def text_message_handle(bot, message):
         keyboard = get_main_keyboard()
         message_text = db_connector.get_message_text_by_id(17)
         update_user_state(uid=user.uid, state="INPUT_QUESTION", input_value="NULL")
-        bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
+        send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
         log.info("STATE RESET")
 
     elif message.text == db_connector.get_message_text_by_id(18):
@@ -132,7 +129,7 @@ def text_message_handle(bot, message):
         keyboard = get_main_keyboard()
         message_text = db_connector.get_message_text_by_id(20)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-        bot.send_message(chat_id=user.uid, text=message_text, reply_markup=keyboard)
+        send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
         log.info("STATE RESET")
 
     elif message.text == db_connector.get_message_text_by_id(15):
@@ -143,7 +140,7 @@ def text_message_handle(bot, message):
         bot.send_photo(user.uid, img, reply_to_message_id=message.message_id)
         os.remove(file_name)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-        bot.send_message(chat_id=user.uid, text="меню", reply_markup=keyboard)
+        send_message_timeout_five_times(bot, user.uid, "меню", reply_markup=keyboard)
         log.info("STATE RESET")
 
 
@@ -159,7 +156,7 @@ def text_message_handle(bot, message):
         for file_name in file_names:
             os.remove(file_name)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-        bot.send_message(chat_id=user.uid, text="меню", reply_markup=keyboard)
+        send_message_timeout_five_times(bot, user.uid, "меню", reply_markup=keyboard)
         log.info("STATE RESET")
 
 
@@ -171,23 +168,23 @@ def text_message_handle(bot, message):
             update_notification_count(user.uid, message.text)
             update_user_state(uid=user.uid, state="NULL", input_value="NULL")
             message_text = db_connector.get_message_text_by_id(10)
-            bot.send_message(chat_id=user.uid, text=message_text, reply_to_message_id=message.message_id)
+            send_message_timeout_five_times(bot, user.uid, message_text, reply_to_message_id=message.message_id)
             log.info("STATE RESET")
         else:
             update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-            bot.send_message(chat_id=user.uid, text="Нужно указать целое число",
-                             reply_to_message_id=message.message_id)
+            send_message_timeout_five_times(bot, user.uid, "Нужно указать целое число",
+                                            reply_to_message_id=message.message_id)
             log.info("STATE RESET")
 
     elif check_user_state_input(user.uid) == "INPUT_QUESTION":
         """ Обработка вопроса автору """
         keyboard = get_question_keyboard(uid=user.uid, message_id=message.id)
-        bot.send_message(chat_id=user.uid, text="Ваш вопрос отправлен",
-                             reply_to_message_id=message.message_id)
+        send_message_timeout_five_times(bot, user.uid, "Ваш вопрос отправлен",
+                                        reply_to_message_id=message.message_id)
         prepared_message_text = f"""Вопрос от пользователя {user.username} ({user.first_name} {user.last_name}):
 {message.text}"""
-        bot.send_message(chat_id=556047985, text=prepared_message_text, reply_markup=keyboard)
-        bot.send_message(chat_id=121013858, text=prepared_message_text, reply_markup=keyboard)
+        send_message_timeout_five_times(bot, 556047985, prepared_message_text, reply_markup=keyboard)
+        send_message_timeout_five_times(bot, 121013858, prepared_message_text, reply_markup=keyboard)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
 
@@ -198,8 +195,8 @@ def text_message_handle(bot, message):
         recipient_uid = formatted_data.split('_')[0]
         recipient_message_id = formatted_data.split('_')[1]
         prepared_message_text = f"""Саша Зеленин:\n{message.text}"""
-        bot.send_message(chat_id=recipient_uid, text=prepared_message_text, reply_to_message_id=recipient_message_id)
-
+        send_message_timeout_five_times(bot, recipient_uid, prepared_message_text,
+                                        reply_to_message_id=recipient_message_id)
 
 
 def update_settings(bot, call):
@@ -235,15 +232,22 @@ def callback_handler(bot, call):
         next_notification_state = False
     else:
         user.set_notification_complite(notification_id)
+    scheduled_time = db_connector.get_notification_scheduled_time(notification_id)
+    scheduled_time_formatted = datetime.datetime.strptime(scheduled_time, '%Y-%m-%d %H:%M:%S')
     log.info(f"next notification state - {next_notification_state}")
     creation_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     log.info(f"creation_date {creation_date}")
-    increment_answers(user=user, data=formatted_data, creation_date=creation_date)
+    response_time = int((datetime.datetime.now() - scheduled_time_formatted).total_seconds() / 60.0)
+    if next_notification_state:
+        increment_answers(user=user, data=formatted_data, creation_date=creation_date, response_time=response_time)
+    else:
+        increment_answers(user=user, data=formatted_data, creation_date=creation_date)
     message_text = db_connector.get_message_text_by_id(5)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=message_text)
     # current = Notification(data_set=user.get_last_notification())
     # if next_notification_state:
     #     prepare_next_notification(current)
+
 
 def ref(bot, message):
     user = Botuser(uid=message.chat.id,
@@ -251,9 +255,11 @@ def ref(bot, message):
                    first_name=message.chat.first_name,
                    last_name=message.chat.last_name)
 
+
 def survey_results(bot, call):
     log.info(f"Survey results {call.message.chat.id} - {call.data}")
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=('Спасибо за участие'))
+
 
 def prepare_survey(bot, message):
     user = Botuser(uid=message.chat.id,
@@ -270,8 +276,8 @@ def prepare_survey(bot, message):
     users = user.get_bot_active_users()
     for curr_user in users:
         log.info(f'sending survey to user {user}')
-        bot.send_message(curr_user, text=text, reply_markup=keyboard)
-        time.sleep(1)
+        send_message_timeout_five_times(bot, curr_user, text, reply_markup=keyboard)
+        time.sleep(5)
 
 
 def send_text(bot, message):
@@ -285,8 +291,8 @@ def send_text(bot, message):
     log.debug(users)
     for curr_user in users:
         log.info(f'sending text to user {user}')
-        bot.send_message(curr_user, text=text, parse_mode='Markdown')
-        time.sleep(1)
+        send_message_timeout_five_times(bot, curr_user, text, parse_mode='Markdown')
+        time.sleep(5)
 
 
 def get_stats(bot, message):
@@ -300,13 +306,14 @@ def get_stats(bot, message):
         blocked = stats.get_blocked_users()
         yestarday = stats.get_yestarday_users()
         top_refers = stats.top_refers()
-        bot.send_message(chat_id=message.chat.id, text=blocked)
-        bot.send_message(chat_id=message.chat.id, text=yestarday)
-        bot.send_message(chat_id=message.chat.id, text=get_stats)
-        bot.send_message(chat_id=message.chat.id, text=top_refers)
+        send_message_timeout_five_times(bot, message.chat.id, blocked)
+        send_message_timeout_five_times(bot, message.chat.id, yestarday)
+        send_message_timeout_five_times(bot, message.chat.id, get_stats)
+        send_message_timeout_five_times(bot, message.chat.id, top_refers)
 
     else:
-        bot.send_message(chat_id=message.chat.id, text='У Вас нет прав админа')
+        send_message_timeout_five_times(bot, message.chat.id, 'У Вас нет прав админа')
+
 
 def get_users_stat(bot, message):
     user = Botuser(uid=message.chat.id,
@@ -327,10 +334,10 @@ def get_users_stat(bot, message):
                 message_text += """\nПользователь заблокировал бота"""
             log.debug(last_notification)
             time.sleep(1)
-            bot.send_message(chat_id=user.uid, text=message_text)
+            send_message_timeout_five_times(bot, user.uid, message_text)
 
     else:
-        bot.send_message(chat_id=message.chat.id, text='У Вас нет прав админа')
+        send_message_timeout_five_times(bot, message.chat.id, 'У Вас нет прав админа')
 
 
 def question_reply(bot, call):
@@ -339,4 +346,4 @@ def question_reply(bot, call):
     formatted_data = f"""{data[1]}_{data[2]}"""
     update_user_state(uid=call.message.chat.id, state="REPLY_TO", input_value=formatted_data)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=call.message.text)
-    bot.send_message(chat_id=call.message.chat.id, text="Введите ответ:")
+    send_message_timeout_five_times(bot, call.message.chat.id, "Введите ответ:")

@@ -1,5 +1,8 @@
+import time
+
 import telebot
 from multiprocessing import Process
+import flask
 
 from BotUser.utils import menu_helper
 from BotUser.utils.menu_helper import callback_handler
@@ -9,8 +12,40 @@ from utils.scheduler import check_pending
 
 log = get_logger("main handler")
 TOKEN = get_api_token()
+
+#WEBHOOK_HOST = '193.187.174.9'
+#WEBHOOK_PORT = 8443  # 443, 80, 88 or 8443 (port need to be 'open')
+#WEBHOOK_LISTEN = '193.187.174.9'  # In some VPS you may need to put here the IP addr
+
+#WEBHOOK_SSL_CERT = './webhook_cert.pem'  # Path to the ssl certificate
+#WEBHOOK_SSL_PRIV = './webhook_pkey.pem' # Path to the ssl private key
+
+#WEBHOOK_URL_BASE = "https://%s:%s" % (WEBHOOK_HOST, WEBHOOK_PORT)
+#WEBHOOK_URL_PATH = "/%s/" % (TOKEN)
+
 bot = telebot.TeleBot(TOKEN)
 log.debug(TOKEN)
+
+#app = flask.Flask(__name__)
+
+
+
+# Empty webserver index, return nothing, just http 200
+#@app.route('/', methods=['GET', 'HEAD'])
+#def index():
+#    return ''
+
+
+# Process webhook calls
+#@app.route(WEBHOOK_URL_PATH, methods=['POST'])
+#def webhook():
+#    if flask.request.headers.get('content-type') == 'application/json':
+#        json_string = flask.request.get_data().decode('utf-8')
+#        update = telebot.types.Update.de_json(json_string)
+#        bot.process_new_updates([update])
+#        return ''
+#    else:
+#        flask.abort(403)
 
 @bot.message_handler(commands=['start'])
 def command_start_handler(m):
@@ -115,7 +150,25 @@ def question_reply(call):
         bot.send_message(call.message.chat.id, 'Что-то пошло не так')
 
 if __name__ == '__main__':
+    # Remove webhook, it fails sometimes the set if there is a previous webhook
+    #bot.remove_webhook()
+    #time.sleep(0.1)
+    #log.debug('webhook removed')
+
+    # Set webhook
+    #bot.set_webhook(url=WEBHOOK_URL_BASE + WEBHOOK_URL_PATH,
+    #                certificate=open(WEBHOOK_SSL_CERT, 'r'))
+    #log.debug('webhook setted')
+
+    # Start flask server
+    #app.run(host=WEBHOOK_LISTEN,
+    #        port=WEBHOOK_PORT,
+    #        ssl_context=(WEBHOOK_SSL_CERT, WEBHOOK_SSL_PRIV),
+    #        debug=True)
+
+
     p1 = Process(target=check_pending, args=(bot,))
     p1.start()
+
     print('Listerning...')
     bot.polling(none_stop=True)

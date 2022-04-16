@@ -2,6 +2,8 @@ import datetime
 import os
 import time
 import imageio
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import uuid
 
@@ -10,7 +12,6 @@ from utils import db_connector
 from utils.logger import get_logger
 
 log = get_logger("bot_user")
-
 
 class Botuser:
 

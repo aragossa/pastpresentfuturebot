@@ -40,6 +40,12 @@ def get_message_text_by_id(message_id):
         cur.execute(f"""SELECT message_text FROM messages WHERE id = '{message_id}'""")
         return cur.fetchone()[0]
 
+def get_notification_scheduled_time(notification_id):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""SELECT scheduled_time FROM scheduled WHERE id = '{notification_id}'""")
+        return cur.fetchone()[0]
+
 
 def get_notification_count_by_uid(uid):
     con, cur = connection()
@@ -163,10 +169,10 @@ def update_notification_count(uid, data):
         return True
 
 
-def increment_answers(user, data, creation_date):
+def increment_answers(user, data, creation_date, response_time=0):
     con, cur = connection()
     with con:
-        query = f"""INSERT INTO results  ("id", "{data}", "creation_date") VALUES ({user.uid}, 1, '{creation_date}')"""
+        query = f"""INSERT INTO results  ("id", "{data}", "creation_date", "response_time") VALUES ({user.uid}, 1, '{creation_date}', {response_time})"""
         log.info(query)
         cur.execute(query)
         return True
@@ -348,6 +354,13 @@ def get_avg_days_usage():
             users_data.append({'uid': user[0], 'usage_data': user_usage})
     return users_data
 
+def get_avg_reponse():
+    con, cur = connection()
+    with con:
+        cur.execute("""select avg(response_time)
+            from results
+            where response_time <> 0;""")
+        return cur.fetchone()[0]
 
 def get_top_refers():
     con, cur = connection()
