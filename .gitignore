@@ -2,3 +2,5 @@
 /data/
 /data/database.db
 /tests/
+/ansible/
+/.pytest_cache/
