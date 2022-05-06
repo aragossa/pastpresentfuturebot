@@ -232,13 +232,14 @@ def callback_handler(bot, call):
         next_notification_state = False
     else:
         user.set_notification_complite(notification_id)
-    scheduled_time = db_connector.get_notification_scheduled_time(notification_id)
-    scheduled_time_formatted = datetime.datetime.strptime(scheduled_time, '%Y-%m-%d %H:%M:%S')
-    log.info(f"next notification state - {next_notification_state}")
     creation_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    log.info(f"creation_date {creation_date}")
-    response_time = int((datetime.datetime.now() - scheduled_time_formatted).total_seconds() / 60.0)
     if next_notification_state:
+        scheduled_time = db_connector.get_notification_scheduled_time(notification_id)
+        scheduled_time_formatted = datetime.datetime.strptime(scheduled_time, '%Y-%m-%d %H:%M:%S')
+        log.info(f"next notification state - {next_notification_state}")
+
+        log.info(f"creation_date {creation_date}")
+        response_time = int((datetime.datetime.now() - scheduled_time_formatted).total_seconds() / 60.0)
         increment_answers(user=user, data=formatted_data, creation_date=creation_date, response_time=response_time)
     else:
         increment_answers(user=user, data=formatted_data, creation_date=creation_date)
