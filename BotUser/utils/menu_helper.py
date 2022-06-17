@@ -149,9 +149,10 @@ def text_message_handle(bot, message):
         log.info("STATE RESET")
 
     elif message.text == db_connector.get_message_text_by_id(21):
-        """ Меню Объяснить """
+        """ Поденю Концепции """
+        keyboard = get_main_keyboard()
         message_text = db_connector.get_message_text_by_id(22)
-        send_message_timeout_five_times(bot, user.uid, message_text)
+        send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
 
