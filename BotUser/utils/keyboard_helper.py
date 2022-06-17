@@ -45,10 +45,10 @@ def get_main_keyboard():
     button_text_manual = db_connector.get_message_text_by_id(13)
     btn6 = types.KeyboardButton(button_text_manual)
     # Объяснить
-    button_text_explain = db_connector.get_message_text_by_id(21)
-    btn7 = types.KeyboardButton(button_text_explain)
+    # button_text_explain = db_connector.get_message_text_by_id(21)
+    # btn7 = types.KeyboardButton(button_text_explain)
 
-    keyboard.add(btn2, btn3, btn7)
+    keyboard.add(btn2, btn3)
     keyboard.add(btn6, btn5, btn1)
     return keyboard
 
@@ -58,7 +58,9 @@ def get_submenu_manual_keyboard():
     btn1 = types.KeyboardButton(button_text_user_state)
     button_text_button_descriprion = db_connector.get_message_text_by_id(18)
     btn2 = types.KeyboardButton(button_text_button_descriprion)
-    keyboard.add(btn1, btn2)
+    button_text_explain = db_connector.get_message_text_by_id(21)
+    btn3 = types.KeyboardButton(button_text_explain)
+    keyboard.add(btn1, btn2, btn3)
     return keyboard
 
 def get_submenu_analysis_keyboard():
