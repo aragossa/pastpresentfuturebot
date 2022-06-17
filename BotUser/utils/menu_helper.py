@@ -344,7 +344,7 @@ def update_user_menu(bot, message):
                    first_name=message.chat.first_name,
                    last_name=message.chat.last_name)
     users = user.get_bot_active_users()
-    message_text = 'Привет! Мы обновили меню, появилась кнопка "Объяснить"'
+    message_text = 'Привет! Мы обновили меню, появилась кнопка'
     keyboard = get_main_keyboard()
     for curr_user in users:
         log.info(f'sending text to user {user} to update menu')
