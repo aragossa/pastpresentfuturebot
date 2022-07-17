@@ -44,8 +44,11 @@ def get_main_keyboard():
     # Мануал
     button_text_manual = db_connector.get_message_text_by_id(13)
     btn6 = types.KeyboardButton(button_text_manual)
+    # Объяснить
+    button_text_explain = db_connector.get_message_text_by_id(21)
+    btn7 = types.KeyboardButton(button_text_explain)
 
-    keyboard.add(btn2, btn3)
+    keyboard.add(btn2, btn3, btn7)
     keyboard.add(btn6, btn5, btn1)
     return keyboard
 
@@ -88,4 +91,12 @@ def get_question_keyboard(uid, message_id):
     log.debug(f'reply_{uid}_{message_id}')
     btn1 = types.InlineKeyboardButton(text='Ответить', callback_data=f'reply_{uid}_{message_id}')
     keyboard.add(btn1)
+    return keyboard
+
+
+def get_feedback_keyboard(uid):
+    keyboard = types.InlineKeyboardMarkup()
+    btn1 = types.InlineKeyboardButton(text='Позвонить', callback_data=f'feedback_call_{uid}')
+    btn2 = types.InlineKeyboardButton(text='Заполнить форму', callback_data=f'feedback_form_{uid}')
+    keyboard.add(btn1, btn2)
     return keyboard

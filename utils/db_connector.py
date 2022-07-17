@@ -370,9 +370,19 @@ def get_top_refers():
                         group by refer_id""")
         refer_list = cur.fetchall()
 
-    cur.execute(f"""select refer_id from users_state
+        cur.execute(f"""select refer_id from users_state
                         where refer_id is not null""")
-    result = cur.fetchall()
+        result = cur.fetchall()
     return refer_list, result
 
 
+def check_refer_id(uid):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""select id from users
+                        where id = '{uid}'""")
+        result = cur.fetchall()
+    if len(result) > 0:
+        return True
+    else:
+        return False

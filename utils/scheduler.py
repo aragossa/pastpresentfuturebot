@@ -5,7 +5,7 @@ import telebot
 from telebot.apihelper import ApiTelegramException
 
 from BotUser.bot_user import Botuser
-from BotUser.utils.keyboard_helper import get_request_keyboard
+from BotUser.utils.keyboard_helper import get_request_keyboard, get_feedback_keyboard
 from BotUser.utils.send_message_timeout import send_message_timeout_five_times
 from utils import db_connector
 from utils.db_connector import set_notification_sent, get_delay_hours, get_notification_count_by_uid, add_notification, \
@@ -27,26 +27,6 @@ def get_today_limits():
     log.info(f'get_today_limits start_day={start_day}, fin_day={fin_day}, period_1_start={period_1_start}, period_1_finish={period_1_finish}')
     return start_day, fin_day, period_1_start, period_1_finish
 
-
-    # if today.weekday() == 6 or today.weekday() == 5:
-    #
-    #     period_1_start = datetime.datetime.today().replace(hour=10, minute=00, second=00)
-    #     period_1_finish = datetime.datetime.today().replace(hour=19, minute=00, second=00)
-    #     log.info(start_day)
-    #     log.info(fin_day)
-    #     log.info(period_1_start)
-    #     log.info(period_1_finish)
-    #     return start_day, fin_day, period_1_start, period_1_finish
-    # else:
-    #     period_1_start = datetime.datetime.today().replace(hour=8, minute=00, second=00)
-    #     period_1_finish = datetime.datetime.today().replace(hour=9, minute=30, second=00)
-    #     period_2_start = datetime.datetime.today().replace(hour=12, minute=30, second=00)
-    #     period_2_finish = datetime.datetime.today().replace(hour=14, minute=00, second=00)
-    #     period_3_start = datetime.datetime.today().replace(hour=19, minute=00, second=00)
-    #     period_3_finish = datetime.datetime.today().replace(hour=22, minute=00, second=00)
-    #     return start_day, fin_day, period_1_start, period_1_finish, period_2_start, period_2_finish, period_3_start, period_3_finish
-
-
 def get_sum(datetime_start, datetime_finish):
     return (datetime_finish - datetime_start).seconds // 60
 
@@ -66,51 +46,6 @@ def minutes_left_to_send():
     else:
         return 0
 
-    # if now.weekday() == 6 or now.weekday() == 5:
-    #     start_day, fin_day, period_1_start, period_1_finish = get_today_limits()
-    #     if start_day <= now < period_1_start:
-    #         minutes_left = get_sum(now, period_1_finish)
-    #         return minutes_left
-    #
-    #     elif period_1_start <= now < period_1_finish:
-    #         minutes_left = get_sum(now, period_1_finish)
-    #         return minutes_left
-    #
-    #     else:
-    #         return 0
-    #
-    # else:
-    #     start_day, fin_day, period_1_start, period_1_finish, period_2_start, period_2_finish, period_3_start, period_3_finish = get_today_limits()
-    #     if start_day <= now < period_1_start:
-    #         minutes_left = get_sum(now, period_3_finish)
-    #         return minutes_left
-    #
-    #     elif period_1_start <= now < period_1_finish:
-    #         minutes_left = get_sum(now, period_1_finish) + get_sum(period_2_start, period_2_finish) + get_sum(
-    #             period_3_start, period_3_finish)
-    #         return minutes_left
-    #
-    #     elif period_1_finish <= now < period_2_start:
-    #         minutes_left = get_sum(period_2_start, period_2_finish) + get_sum(
-    #             period_3_start, period_3_finish)
-    #         return minutes_left
-    #
-    #     elif period_2_start <= now < period_2_finish:
-    #         minutes_left = get_sum(now, period_2_finish) + get_sum(
-    #             period_3_start, period_3_finish)
-    #         return minutes_left
-    #
-    #     elif period_2_finish <= now < period_3_start:
-    #         minutes_left = get_sum(period_3_start, period_3_finish)
-    #         return minutes_left
-    #
-    #     elif period_3_start <= now < period_3_finish:
-    #         minutes_left = get_sum(now, period_3_finish)
-    #         return minutes_left
-    #
-    #     else:
-    #         return 0
-
 
 def check_period(check_datetime):
     now = datetime.datetime.now()
@@ -128,59 +63,6 @@ def check_period(check_datetime):
 
     else:
         return 0
-
-    # if now.weekday() == 6 or now.weekday() == 5:
-    #     start_day, fin_day, period_1_start, period_1_finish = get_today_limits()
-    #     status = "continue"
-    #     log.info(status)
-    #
-    #     if start_day <= check_datetime < period_1_start:
-    #         log.info(f"""Next period is {period_1_start} {status}""")
-    #         return period_1_start, status
-    #
-    #     elif period_1_start <= check_datetime < period_1_finish:
-    #         log.info(f"""Next period is {check_datetime} {status}""")
-    #         return check_datetime, status
-    #
-    #     else:
-    #         return 0
-
-
-    # else:
-    #     start_day, fin_day, period_1_start, period_1_finish, period_2_start, period_2_finish, period_3_start, period_3_finish = get_today_limits()
-    #     log.info(check_datetime)
-    #     status = "continue"
-    #     log.info(status)
-    #
-    #     if start_day <= check_datetime < period_1_start:
-    #         log.info(f"""Next period is {period_1_start} {status}""")
-    #         return period_1_start, status
-    #
-    #     elif period_1_start <= check_datetime < period_1_finish:
-    #         log.info(f"""Next period is {check_datetime} {status}""")
-    #         return check_datetime, status
-    #
-    #     elif period_1_finish <= check_datetime < period_2_start:
-    #         log.info(f"""Next period is {period_2_start} {status}""")
-    #         return period_2_start, status
-    #
-    #     elif period_2_start <= check_datetime < period_2_finish:
-    #         log.info(f"""Next period is {check_datetime} {status}""")
-    #         return check_datetime, status
-    #
-    #     elif period_2_finish <= check_datetime < period_3_start:
-    #         log.info(f"""Next period is {period_3_start} {status}""")
-    #         return period_3_start, status
-    #
-    #     elif period_3_start <= check_datetime < period_3_finish:
-    #         log.info(f"""Next period is {check_datetime} {status}""")
-    #         return check_datetime, status
-    #
-    #     elif period_3_finish <= check_datetime <= fin_day:
-    #         status = "stop"
-    #         log.info(f"""Next period is {period_3_finish} {status}""")
-    #         return period_3_finish, status
-
 
 def prepare_first_notification(uid):
     data_set = (
@@ -269,6 +151,15 @@ def check_pending(bot):
                     log.info(f'user {current.uid} blocked')
                     set_notification_blocked(notification_id=current.id)
 
-
-        #log.info('Go to sleep 5 sec')
+            if current.type == 'FEEDBACK':
+                message_text = db_connector.get_message_text_by_id(23)
+                try:
+                    keyboard = get_feedback_keyboard(current.uid)
+                    msg = send_message_timeout_five_times(bot, current.uid, message_text, keyboard)
+                except telebot.apihelper.ApiTelegramException as e:
+                    log.exception(e)
+                    log.info(f'user {current.uid} blocked')
+                    set_notification_blocked(notification_id=current.id)
+                set_notification_sent(notification_id=current.id)
+                update_message_id(notification_id=current.id, message_id=msg.message_id)
         time.sleep(5)

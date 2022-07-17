@@ -1,5 +1,3 @@
-import time
-
 import telebot
 from multiprocessing import Process
 import ssl
@@ -7,7 +5,7 @@ from aiohttp import web
 
 from BotUser.utils import menu_helper
 from BotUser.utils.menu_helper import callback_handler
-from utils.db_connector import get_api_token, connection
+from utils.db_connector import get_api_token
 from utils.logger import get_logger
 from utils.scheduler import check_pending
 
@@ -74,6 +72,16 @@ def send_survey(m):
         bot.send_message(m.chat.id,
                          'Что-то пошло не так')
 
+
+@bot.message_handler(commands=['adminadminupdateusermenuadminadmin'])
+def send_survey(m):
+    try:
+        menu_helper.update_user_menu(bot=bot, message=m)
+    except:
+        log.exception(m)
+        log.exception('Got exception on main handler')
+        bot.send_message(m.chat.id,
+                         'Что-то пошло не так')
 
 
 @bot.message_handler(commands=['adminadmingetstatsadminadmin'])
@@ -145,6 +153,17 @@ def question_reply(call):
         log.exception(call)
         log.exception('Got exception on main handler')
         bot.send_message(call.message.chat.id, 'Что-то пошло не так')
+
+
+@bot.callback_query_handler(func=lambda call: call.data[:9] == 'feedback_')
+def question_reply(call):
+    try:
+        menu_helper.feedback_reply(bot=bot, call=call)
+    except:
+        log.exception(call)
+        log.exception('Got exception on main handler')
+        bot.send_message(call.message.chat.id, 'Что-то пошло не так')
+
 
 if __name__ == '__main__':
     p1 = Process(target=check_pending, args=(bot,))

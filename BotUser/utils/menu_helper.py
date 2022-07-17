@@ -7,9 +7,11 @@ from BotUser.utils.keyboard_helper import get_main_keyboard, get_request_keyboar
     get_submenu_analysis_keyboard, get_survey_keyboard, get_question_keyboard
 from BotUser.utils.send_message_timeout import send_message_timeout_five_times
 from utils import db_connector
-from utils.db_connector import increment_answers, get_user_state, update_user_state, update_notification_count
+from utils.db_connector import increment_answers, get_user_state, update_user_state, update_notification_count, \
+    add_notification
 from utils.logger import get_logger
 from BotUser.bot_user import Botuser
+from utils.notifications import Notification
 from utils.scheduler import prepare_first_notification
 
 log = get_logger("menu_helper")
@@ -23,6 +25,34 @@ def is_int(string):
         return False
 
 
+def add_feedback_notification(user):
+    data_set = (
+        1, "FEEDBACK", user.uid, datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'), "NEW", 1)
+
+    current = Notification(data_set=data_set)
+    this_datetime = datetime.datetime.strptime(current.datetime, '%Y-%m-%d %H:%M:%S')
+    next_datetime = this_datetime + datetime.timedelta(days=21)
+    next_datetime_str = next_datetime.strftime('%Y-%m-%d')
+    add_notification(current=current, next_datetime=f'{next_datetime_str} 12:00:00', step_id=current.step_id + 1)
+
+
+def admin_notify(bot, user):
+    time.sleep(1)
+    new_user_notification = f"""Подключился новый пользователь:
+    id: {user.uid},
+    username: {user.username},
+    first_name: {user.first_name},
+    last_name: {user.last_name}"""
+    send_message_timeout_five_times(bot, 121013858, new_user_notification)
+    time.sleep(1)
+
+
+def refer_notify(bot, refer_id):
+    time.sleep(1)
+    message_text = db_connector.get_message_text_by_id(24)
+    send_message_timeout_five_times(bot, refer_id, message_text)
+
+
 def check_user_state_input(uid):
     if get_user_state(uid=uid)[0] == "INPUT":
         return "INPUT"
@@ -30,6 +60,11 @@ def check_user_state_input(uid):
         return "INPUT_QUESTION"
     elif get_user_state(uid=uid)[0] == "REPLY_TO":
         return "REPLY_TO"
+    elif get_user_state(uid=uid)[0] == 'FEEDBACK_PHONE':
+        return 'FEEDBACK_PHONE'
+    elif get_user_state(uid=uid)[0] == 'FEEDBACK_TIME':
+        return 'FEEDBACK_TIME'
+
 
 
 def add_user(bot, message):
@@ -46,24 +81,21 @@ def add_user(bot, message):
 
     else:
         if len(message.text.split()) > 1:
-            log.info(f"found refer_id {message.text.split()[1]}")
-            user.add_user(refer_id=message.text.split()[1])
+            refer_id = message.text.split()[1]
+            if db_connector.check_refer_id(refer_id):
+                log.info(f"found refer_id {refer_id}")
+                user.add_user(refer_id=refer_id)
+                refer_notify(bot=bot, refer_id=refer_id)
+            else:
+                log.info(f"failed to find refer_id {refer_id}")
         else:
             user.add_user()
         message_text = db_connector.get_message_text_by_id(3)
         send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
 
-        time.sleep(1)
-        new_user_notification = f"""Подключился новый пользователь:
-id: {user.uid},
-username: {user.username},
-first_name: {user.first_name},
-last_name: {user.last_name}"""
-        send_message_timeout_five_times(bot, 121013858, new_user_notification)
-        time.sleep(1)
-        send_message_timeout_five_times(bot, 556047985, new_user_notification)
-
+        admin_notify(bot=bot, user=user)
         prepare_first_notification(user.uid)
+        add_feedback_notification(user=user)
 
 
 def text_message_handle(bot, message):
@@ -116,6 +148,13 @@ def text_message_handle(bot, message):
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         log.info("STATE RESET")
 
+    elif message.text == db_connector.get_message_text_by_id(21):
+        """ Меню Объяснить """
+        message_text = db_connector.get_message_text_by_id(22)
+        send_message_timeout_five_times(bot, user.uid, message_text)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        log.info("STATE RESET")
+
     elif message.text == db_connector.get_message_text_by_id(14):
         """ Подменю Вопрос автору """
         keyboard = get_main_keyboard()
@@ -143,7 +182,6 @@ def text_message_handle(bot, message):
         send_message_timeout_five_times(bot, user.uid, "меню", reply_markup=keyboard)
         log.info("STATE RESET")
 
-
     elif message.text == db_connector.get_message_text_by_id(16):
         """ Подменю анализ в динамике """
         keyboard = get_main_keyboard()
@@ -158,8 +196,6 @@ def text_message_handle(bot, message):
         update_user_state(uid=user.uid, state="NULL", input_value="NULL")
         send_message_timeout_five_times(bot, user.uid, "меню", reply_markup=keyboard)
         log.info("STATE RESET")
-
-
 
     elif check_user_state_input(user.uid) == "INPUT":
         """ Обработка количества уведомлений пользователю """
@@ -197,7 +233,19 @@ def text_message_handle(bot, message):
         prepared_message_text = f"""Саша Зеленин:\n{message.text}"""
         send_message_timeout_five_times(bot, recipient_uid, prepared_message_text,
                                         reply_to_message_id=recipient_message_id)
+    elif check_user_state_input(user.uid) == 'FEEDBACK_PHONE':
+        message_text = db_connector.get_message_text_by_id(28)
+        send_message_timeout_five_times(bot, message.chat.id, message_text)
+        update_user_state(uid=message.chat.id, state="FEEDBACK_TIME", input_value=message.text)
 
+    elif check_user_state_input(user.uid) == 'FEEDBACK_TIME':
+        send_message_timeout_five_times(bot, message.chat.id, 'Спасибо!')
+        input_value = get_user_state(uid=user.uid)[1]
+        admin_message_text = f"Фидбэк от пользователя {message.chat.id}: {input_value}, {message.text}"
+        send_message_timeout_five_times(bot, 556047985, admin_message_text)
+        send_message_timeout_five_times(bot, 121013858, admin_message_text)
+        update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+        log.info("STATE RESET")
 
 def update_settings(bot, call):
     user = Botuser(uid=call.message.chat.id,
@@ -250,16 +298,10 @@ def callback_handler(bot, call):
     #     prepare_next_notification(current)
 
 
-def ref(bot, message):
-    user = Botuser(uid=message.chat.id,
-                   username=message.chat.username,
-                   first_name=message.chat.first_name,
-                   last_name=message.chat.last_name)
-
-
 def survey_results(bot, call):
     log.info(f"Survey results {call.message.chat.id} - {call.data}")
-    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=('Спасибо за участие'))
+    message_text = 'Спасибо за участие'
+    bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=message_text)
 
 
 def prepare_survey(bot, message):
@@ -296,6 +338,20 @@ def send_text(bot, message):
         time.sleep(5)
 
 
+def update_user_menu(bot, message):
+    user = Botuser(uid=message.chat.id,
+                   username=message.chat.username,
+                   first_name=message.chat.first_name,
+                   last_name=message.chat.last_name)
+    users = user.get_bot_active_users()
+    message_text = 'Привет! Мы обновили меню, появилась кнопка "Объяснить"'
+    keyboard = get_main_keyboard()
+    for curr_user in users:
+        log.info(f'sending text to user {user} to update menu')
+        send_message_timeout_five_times(bot, curr_user, message_text, reply_markup=keyboard)
+        time.sleep(5)
+
+
 def get_stats(bot, message):
     user = Botuser(uid=message.chat.id,
                    username=message.chat.username,
@@ -303,13 +359,13 @@ def get_stats(bot, message):
                    last_name=message.chat.last_name)
     if user.uid in [121013858, 556047985]:
         stats = UserStats()
-        get_stats = stats.get_stats()
+        get_bot_users_stats = stats.get_stats()
         blocked = stats.get_blocked_users()
-        yestarday = stats.get_yestarday_users()
+        yesterday_users = stats.get_yestarday_users()
         top_refers = stats.top_refers()
         send_message_timeout_five_times(bot, message.chat.id, blocked)
-        send_message_timeout_five_times(bot, message.chat.id, yestarday)
-        send_message_timeout_five_times(bot, message.chat.id, get_stats)
+        send_message_timeout_five_times(bot, message.chat.id, yesterday_users)
+        send_message_timeout_five_times(bot, message.chat.id, get_bot_users_stats)
         send_message_timeout_five_times(bot, message.chat.id, top_refers)
 
     else:
@@ -348,3 +404,18 @@ def question_reply(bot, call):
     update_user_state(uid=call.message.chat.id, state="REPLY_TO", input_value=formatted_data)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=call.message.text)
     send_message_timeout_five_times(bot, call.message.chat.id, "Введите ответ:")
+
+
+def feedback_reply(bot, call):
+    data = call.data.split("_")
+    formatted_data = f"""{data[1]}_{data[2]}"""
+    feedback_choice = data[1]
+    feedback_user = data[2]
+    if feedback_choice == 'form':
+        message_text = db_connector.get_message_text_by_id(26)
+        bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=message_text)
+
+    else:
+        message_text = db_connector.get_message_text_by_id(27)
+        send_message_timeout_five_times(bot, call.message.chat.id, message_text)
+        update_user_state(uid=call.message.chat.id, state="FEEDBACK_PHONE", input_value=formatted_data)
