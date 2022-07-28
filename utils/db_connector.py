@@ -391,5 +391,5 @@ def check_refer_id(uid):
 def get_feedbacks():
     con, cur = connection()
     with con:
-        cur.execute(f"""select count(*) scheduled where message_type = 'FEEDBACK' and status = 'SENT'""")
+        cur.execute(f"""select count(*) from scheduled where message_type = 'FEEDBACK' and status = 'SENT'""")
         return cur.fetchone()
