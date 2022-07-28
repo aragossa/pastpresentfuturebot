@@ -2,7 +2,7 @@ import datetime
 import operator
 
 from utils.db_connector import bot_installs, get_avg_uses, get_blocked_users, get_yesterday_users, get_usage_density, \
-    get_avg_days_block, get_avg_days_usage, get_top_refers, get_avg_reponse
+    get_avg_days_block, get_avg_days_usage, get_top_refers, get_avg_reponse, get_feedbacks
 from utils.logger import get_logger
 
 log = get_logger("get_stats")
@@ -16,6 +16,7 @@ class UserStats():
         get_avg_days_block = self.get_avg_days_block()
         one_week_users, two_week_users = self.get_avg_days_usage()
         avg_reponse = self.get_avg_reponse()
+        feedbacks_sent = self.get_sent_feedbacks()
         message = f"""Всего скачиваний: {users_count} 
 Дата первой установки: {first_install_date}
 Дата последней установки: {last_install_date}
@@ -24,9 +25,14 @@ class UserStats():
 Среднее количество дней до блокировки: {get_avg_days_block}
 Количество пользователей больше недели: {len(one_week_users)}
 Количество пользователей больше 2х недель: {len(two_week_users)}
-Среднее время ответа после пуша, мин: {avg_reponse}"""
+Среднее время ответа после пуша, мин: {avg_reponse}
+Отправлено анкет: {feedbacks_sent}"""
 
         return message
+
+    def get_sent_feedbacks(self):
+        feedbacks_sent = get_feedbacks()
+        return feedbacks_sent[0]
 
     def get_blocked_users(self):
         blocked_users_list = get_blocked_users()

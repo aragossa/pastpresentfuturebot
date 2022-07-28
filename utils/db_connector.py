@@ -386,3 +386,10 @@ def check_refer_id(uid):
         return True
     else:
         return False
+
+
+def get_feedbacks():
+    con, cur = connection()
+    with con:
+        cur.execute(f"""select count(*) scheduled where message_type = 'FEEDBACK' and status = 'SENT'""")
+        return cur.fetchone()
