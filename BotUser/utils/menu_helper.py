@@ -235,7 +235,7 @@ def text_message_handle(bot, message):
         send_message_timeout_five_times(bot, recipient_uid, prepared_message_text,
                                         reply_to_message_id=recipient_message_id)
     elif check_user_state_input(user.uid) == 'FEEDBACK_PHONE':
-        message_text = db_connector.get_message_text_by_id(28)
+        message_text = db_connector.get_message_text_by_id(27)
         send_message_timeout_five_times(bot, message.chat.id, message_text)
         update_user_state(uid=message.chat.id, state="FEEDBACK_TIME", input_value=message.text)
 
