@@ -412,11 +412,12 @@ def feedback_reply(bot, call):
     formatted_data = f"""{data[1]}_{data[2]}"""
     feedback_choice = data[1]
     feedback_user = data[2]
+    log.info(feedback_choice)
     if feedback_choice == 'form':
-        message_text = db_connector.get_message_text_by_id(26)
+        message_text = db_connector.get_message_text_by_id(25)
         bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=message_text)
 
     else:
-        message_text = db_connector.get_message_text_by_id(27)
+        message_text = db_connector.get_message_text_by_id(26)
         send_message_timeout_five_times(bot, call.message.chat.id, message_text)
         update_user_state(uid=call.message.chat.id, state="FEEDBACK_PHONE", input_value=formatted_data)
