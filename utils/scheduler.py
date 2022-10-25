@@ -135,17 +135,21 @@ def check_pending(bot):
 
                     msg = send_message_timeout_five_times(bot, current.uid, message_text, keyboard)
                     #log.info(msg)
-                    log.info('message sent')
-                    set_notification_sent(notification_id=current.id)
-                    update_message_id(notification_id=current.id, message_id=msg.message_id)
-                    if prev_status != 'COMPLITE' and prev_message_id is not None:
-                        log.info(f"{current.uid}, {prev_message_id}")
-                        try:
-                            bot.delete_message(chat_id=current.uid, message_id=prev_message_id)
-                        except ApiTelegramException:
-                            pass
-                    prepare_next_notification(current)
-                    time.sleep(5)
+                    if msg:
+                        log.info('message sent')
+                        set_notification_sent(notification_id=current.id)
+                        update_message_id(notification_id=current.id, message_id=msg.message_id)
+                        if prev_status != 'COMPLITE' and prev_message_id is not None:
+                            log.info(f"{current.uid}, {prev_message_id}")
+                            try:
+                                bot.delete_message(chat_id=current.uid, message_id=prev_message_id)
+                            except ApiTelegramException:
+                                pass
+                        prepare_next_notification(current)
+                        time.sleep(5)
+                    else:
+                        set_notification_blocked(notification_id=current.id)
+
                 except telebot.apihelper.ApiTelegramException as e:
                     log.exception(e)
                     log.info(f'user {current.uid} blocked')
@@ -156,10 +160,13 @@ def check_pending(bot):
                 message_text = db_connector.get_message_text_by_id(23)
                 try:
                     keyboard = get_feedback_keyboard(current.uid)
-                    msg = send_message_timeout_five_times(bot, current.uid, message_text, keyboard)
-                    log.info('sent successfully')
-                    set_notification_sent(notification_id=current.id)
-                    update_message_id(notification_id=current.id, message_id=msg.message_id)
+                    if msg:
+                        msg = send_message_timeout_five_times(bot, current.uid, message_text, keyboard)
+                        log.info('sent successfully')
+                        set_notification_sent(notification_id=current.id)
+                        update_message_id(notification_id=current.id, message_id=msg.message_id)
+                    else:
+                        set_notification_blocked(notification_id=current.id)
                 except telebot.apihelper.ApiTelegramException as e:
                     log.exception(e)
                     log.info(f'user {current.uid} blocked')
