@@ -160,13 +160,14 @@ def check_pending(bot):
                 message_text = db_connector.get_message_text_by_id(23)
                 try:
                     keyboard = get_feedback_keyboard(current.uid)
-                    if msg:
-                        msg = send_message_timeout_five_times(bot, current.uid, message_text, keyboard)
-                        log.info('sent successfully')
-                        set_notification_sent(notification_id=current.id)
+                    msg = send_message_timeout_five_times(bot, current.uid, message_text, keyboard)
+                    log.info(msg)
+                    log.info('sent successfully')
+                    set_notification_sent(notification_id=current.id)
+                    try:
                         update_message_id(notification_id=current.id, message_id=msg.message_id)
-                    else:
-                        set_notification_blocked(notification_id=current.id)
+                    except AttributeError:
+                        pass
                 except telebot.apihelper.ApiTelegramException as e:
                     log.exception(e)
                     log.info(f'user {current.uid} blocked')

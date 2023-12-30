@@ -12,9 +12,9 @@ from utils.scheduler import check_pending
 log = get_logger("main handler")
 TOKEN = get_api_token()
 
-WEBHOOK_HOST = '193.187.174.9'
+WEBHOOK_HOST = '185.159.129.94'
 WEBHOOK_PORT = 8443  # 443, 80, 88 or 8443 (port need to be 'open')
-WEBHOOK_LISTEN = '193.187.174.9'  # In some VPS you may need to put here the IP addr
+WEBHOOK_LISTEN = '185.159.129.94'  # In some VPS you may need to put here the IP addr
 
 WEBHOOK_SSL_CERT = './webhook_cert.pem'  # Path to the ssl certificate
 WEBHOOK_SSL_PRIV = './webhook_pkey.pem' # Path to the ssl private key
