@@ -4,11 +4,11 @@ import time
 
 from BotUser.utils.get_stats import UserStats
 from BotUser.utils.keyboard_helper import get_main_keyboard, get_request_keyboard, get_submenu_manual_keyboard, \
-    get_submenu_analysis_keyboard, get_survey_keyboard, get_question_keyboard
+    get_submenu_analysis_keyboard, get_survey_keyboard, get_question_keyboard, get_settings_submenu_keyboard
 from BotUser.utils.send_message_timeout import send_message_timeout_five_times
 from utils import db_connector
 from utils.db_connector import increment_answers, get_user_state, update_user_state, update_notification_count, \
-    add_notification
+    add_notification, update_user_timezone
 from utils.logger import get_logger
 from BotUser.bot_user import Botuser
 from utils.notifications import Notification
@@ -23,6 +23,15 @@ def is_int(string):
         return True
     except ValueError:
         return False
+
+def input_time_check(string):
+    try:
+        date_format = "%d.%m.%y %H:%M"
+        date_object = datetime.datetime.strptime(string, date_format)
+        return date_object
+    except ValueError:
+        return False
+
 
 
 def add_feedback_notification(user):
@@ -106,7 +115,20 @@ def text_message_handle(bot, message):
     log.info(f"User state is {check_user_state_input(user.uid)}")
 
     if message.text == db_connector.get_message_text_by_id(6):
-        """ Меню настроки """
+        """ Меню настроки"""
+        keyboard = get_settings_submenu_keyboard()
+        message_text = db_connector.get_message_text_by_id(30)
+        send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
+
+    elif message.text == db_connector.get_message_text_by_id(28):
+        """ Меню настроки времени (timezone)"""
+        keyboard = get_main_keyboard()
+        message_text = db_connector.get_message_text_by_id(30)
+        update_user_state(uid=user.uid, state="INPUT_TIMEZONE", input_value="NULL")
+        send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
+
+    elif message.text == db_connector.get_message_text_by_id(29):
+        """ Меню количество сообщений в день"""
 
         message_text = db_connector.get_message_text_by_id(1)
         log.info("changing user state")
@@ -213,6 +235,23 @@ def text_message_handle(bot, message):
                                             reply_to_message_id=message.message_id)
             log.info("STATE RESET")
 
+    elif check_user_state_input(user.uid) == "INPUT_TIMEZONE":
+        """ Обработка введенного пользователем его текущего времени """
+        result = input_time_check(input)
+
+        if result != False:
+            time_difference = datetime.datetime.now() - result
+            hours_difference = int(time_difference.total_seconds() / 3600)
+            update_user_timezone(user.uid, hours_difference)
+            update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+            message_text = db_connector.get_message_text_by_id(10)
+            send_message_timeout_five_times(bot, user.uid, message_text, reply_to_message_id=message.message_id)
+        else:
+            update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+            send_message_timeout_five_times(bot, user.uid, "Нужно указать дату и время в формате дд:мм ЧЧ:ММ",
+                                            reply_to_message_id=message.message_id)
+            log.info("STATE RESET")
+
     elif check_user_state_input(user.uid) == "INPUT_QUESTION":
         """ Обработка вопроса автору """
         keyboard = get_question_keyboard(uid=user.uid, message_id=message.id)
@@ -294,9 +333,6 @@ def callback_handler(bot, call):
         increment_answers(user=user, data=formatted_data, creation_date=creation_date)
     message_text = db_connector.get_message_text_by_id(5)
     bot.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id, text=message_text)
-    # current = Notification(data_set=user.get_last_notification())
-    # if next_notification_state:
-    #     prepare_next_notification(current)
 
 
 def survey_results(bot, call):

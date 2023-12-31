@@ -72,15 +72,6 @@ def get_submenu_analysis_keyboard():
     keyboard.add(btn1, btn2)
     return keyboard
 
-def get_settings_keyboard():
-    keyboard = types.InlineKeyboardMarkup()
-    btn1 = types.InlineKeyboardButton(text='1', callback_data='set_1')
-    btn2 = types.InlineKeyboardButton(text='2', callback_data='set_2')
-    btn3 = types.InlineKeyboardButton(text='3', callback_data='set_3')
-    btn4 = types.InlineKeyboardButton(text='4', callback_data='set_4')
-    keyboard.add(btn1, btn2, btn3, btn4)
-    return keyboard
-
 def get_survey_keyboard():
     keyboard = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(text='ДА', callback_data=f'surv_y')
@@ -100,5 +91,14 @@ def get_feedback_keyboard(uid):
     keyboard = types.InlineKeyboardMarkup()
     btn1 = types.InlineKeyboardButton(text='Позвонить', callback_data=f'feedback_call_{uid}')
     btn2 = types.InlineKeyboardButton(text='Заполнить форму', callback_data=f'feedback_form_{uid}')
+    keyboard.add(btn1, btn2)
+    return keyboard
+
+def get_settings_submenu_keyboard():
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    notify_count = db_connector.get_message_text_by_id(29)
+    btn1 = types.KeyboardButton(notify_count)
+    button_text_dynamic_analysis = db_connector.get_message_text_by_id(28)
+    btn2 = types.KeyboardButton(button_text_dynamic_analysis)
     keyboard.add(btn1, btn2)
     return keyboard

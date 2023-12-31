@@ -204,3 +204,6 @@ class Botuser:
             users.append(curr_result[0])
         log.info(users)
         return users
+
+    def get_send_notify(self):
+        return utils.db_connector.select_time_delta(self.uid)[0]

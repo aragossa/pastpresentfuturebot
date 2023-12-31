@@ -154,6 +154,14 @@ def select_last_notification(uid):
         """)
         return cur.fetchone()
 
+def select_time_delta(uid):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""SELECT time_delta FROM users 
+                        WHERE id ={uid})
+        """)
+        return cur.fetchone()
+
 
 def update_user_state(uid, state, input_value):
     con, cur = connection()
@@ -166,6 +174,12 @@ def update_notification_count(uid, data):
     con, cur = connection()
     with con:
         cur.execute(f"""UPDATE users SET notification_count = {data} WHERE id = {uid} """)
+        return True
+
+def update_user_timezone(uid, data):
+    con, cur = connection()
+    with con:
+        cur.execute(f"""UPDATE users SET time_delta = {data} WHERE id = {uid} """)
         return True
 
 
