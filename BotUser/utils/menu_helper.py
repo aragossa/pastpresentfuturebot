@@ -117,23 +117,20 @@ def text_message_handle(bot, message):
     if message.text == db_connector.get_message_text_by_id(6):
         """ Меню настроки"""
         keyboard = get_settings_submenu_keyboard()
-        message_text = db_connector.get_message_text_by_id(30)
+        message_text = db_connector.get_message_text_by_id(6)
         send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
 
     elif message.text == db_connector.get_message_text_by_id(28):
         """ Меню настроки времени (timezone)"""
-        keyboard = get_main_keyboard()
         message_text = db_connector.get_message_text_by_id(30)
         update_user_state(uid=user.uid, state="INPUT_TIMEZONE", input_value="NULL")
-        send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
+        send_message_timeout_five_times(bot, user.uid, message_text)
 
     elif message.text == db_connector.get_message_text_by_id(29):
         """ Меню количество сообщений в день"""
 
         message_text = db_connector.get_message_text_by_id(1)
-        log.info("changing user state")
         update_user_state(uid=user.uid, state="INPUT", input_value="NULL")
-        log.info("changed")
         send_message_timeout_five_times(bot, user.uid, message_text)
 
     elif message.text == db_connector.get_message_text_by_id(9):
@@ -246,6 +243,7 @@ def text_message_handle(bot, message):
             update_user_state(uid=user.uid, state="NULL", input_value="NULL")
             message_text = db_connector.get_message_text_by_id(10)
             send_message_timeout_five_times(bot, user.uid, message_text, reply_to_message_id=message.message_id)
+            log.info("STATE RESET")
         else:
             update_user_state(uid=user.uid, state="NULL", input_value="NULL")
             send_message_timeout_five_times(bot, user.uid, "Нужно указать дату и время в формате дд:мм ЧЧ:ММ",
