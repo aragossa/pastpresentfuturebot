@@ -123,8 +123,7 @@ def check_pending(bot):
             current = Notification(notification)
             log.info(f'Found notification id={current.id} for user {current.uid} with time {current.datetime}')
             if current.type == 'REQUEST':
-                user = Botuser(current.uid)
-                time_delta = user.get_send_notify()
+                time_delta = Botuser.get_send_notify(current.uid)
                 this_datetime = datetime.datetime.strptime(current.datetime, '%Y-%m-%d %H:%M:%S')
                 send_datetime = this_datetime + datetime.timedelta(hours=time_delta)
                 if send_datetime < datetime.datetime.now():

@@ -33,6 +33,10 @@ class Botuser:
             message_id = None
         return status, message_id
 
+    @staticmethod
+    def get_send_notify(uid):
+        return utils.db_connector.select_time_delta(uid)[0]
+
     def check_auth(self):
         if utils.db_connector.check_auth(self.uid):
             return True
@@ -204,6 +208,3 @@ class Botuser:
             users.append(curr_result[0])
         log.info(users)
         return users
-
-    def get_send_notify(self):
-        return utils.db_connector.select_time_delta(self.uid)[0]
