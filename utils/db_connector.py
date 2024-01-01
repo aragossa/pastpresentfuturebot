@@ -158,7 +158,7 @@ def select_time_delta(uid):
     con, cur = connection()
     with con:
         cur.execute(f"""SELECT time_delta FROM users 
-                        WHERE id ={uid})
+                        WHERE id ={uid}
         """)
         return cur.fetchone()
 
