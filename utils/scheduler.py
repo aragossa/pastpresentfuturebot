@@ -126,7 +126,8 @@ def check_pending(bot):
                 time_delta = Botuser.get_send_notify(current.uid)
                 this_datetime = datetime.datetime.strptime(current.datetime, '%Y-%m-%d %H:%M:%S')
                 send_datetime = this_datetime + datetime.timedelta(hours=time_delta)
-                if send_datetime < datetime.datetime.now():
+                log.info(f"send_datetime < datetime.datetime.now() {send_datetime}, {datetime.datetime.now()}, {send_datetime < datetime.datetime.now()}")
+                if send_datetime > datetime.datetime.now():
                     continue
                 prev_status, prev_message_id = Botuser.get_last_notification_status(current.uid)
                 log.info(f"prev_status {prev_status}")

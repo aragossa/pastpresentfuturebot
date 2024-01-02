@@ -73,6 +73,8 @@ def check_user_state_input(uid):
         return 'FEEDBACK_PHONE'
     elif get_user_state(uid=uid)[0] == 'FEEDBACK_TIME':
         return 'FEEDBACK_TIME'
+    elif get_user_state(uid=uid)[0] == 'INPUT_TIMEZONE':
+        return 'INPUT_TIMEZONE'
 
 
 
@@ -116,19 +118,21 @@ def text_message_handle(bot, message):
 
     if message.text == db_connector.get_message_text_by_id(6):
         """ Меню настроки"""
+        log.info("Settings menu opened")
         keyboard = get_settings_submenu_keyboard()
         message_text = db_connector.get_message_text_by_id(6)
         send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard)
 
     elif message.text == db_connector.get_message_text_by_id(28):
         """ Меню настроки времени (timezone)"""
+        log.info("timezone submenu opened")
         message_text = db_connector.get_message_text_by_id(30)
         update_user_state(uid=user.uid, state="INPUT_TIMEZONE", input_value="NULL")
         send_message_timeout_five_times(bot, user.uid, message_text)
 
     elif message.text == db_connector.get_message_text_by_id(29):
         """ Меню количество сообщений в день"""
-
+        log.info("counts submenu opened")
         message_text = db_connector.get_message_text_by_id(1)
         update_user_state(uid=user.uid, state="INPUT", input_value="NULL")
         send_message_timeout_five_times(bot, user.uid, message_text)
@@ -220,34 +224,35 @@ def text_message_handle(bot, message):
     elif check_user_state_input(user.uid) == "INPUT":
         """ Обработка количества уведомлений пользователю """
         log.info(f"message.text is int {is_int(message.text)}")
+        keyboard = get_main_keyboard()
         if is_int(message.text):
             update_notification_count(user.uid, message.text)
             update_user_state(uid=user.uid, state="NULL", input_value="NULL")
             message_text = db_connector.get_message_text_by_id(10)
-            send_message_timeout_five_times(bot, user.uid, message_text, reply_to_message_id=message.message_id)
+            send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard, reply_to_message_id=message.message_id)
             log.info("STATE RESET")
         else:
             update_user_state(uid=user.uid, state="NULL", input_value="NULL")
             send_message_timeout_five_times(bot, user.uid, "Нужно указать целое число",
-                                            reply_to_message_id=message.message_id)
+                                            reply_markup=keyboard, reply_to_message_id=message.message_id)
             log.info("STATE RESET")
 
     elif check_user_state_input(user.uid) == "INPUT_TIMEZONE":
-        """ Обработка введенного пользователем его текущего времени """
-        result = input_time_check(input)
-
+        """ Обработка введенного пользователем текущего времени """
+        result = input_time_check(message.text)
+        keyboard = get_main_keyboard()
         if result != False:
             time_difference = datetime.datetime.now() - result
             hours_difference = int(time_difference.total_seconds() / 3600)
             update_user_timezone(user.uid, hours_difference)
             update_user_state(uid=user.uid, state="NULL", input_value="NULL")
             message_text = db_connector.get_message_text_by_id(10)
-            send_message_timeout_five_times(bot, user.uid, message_text, reply_to_message_id=message.message_id)
+            send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard, reply_to_message_id=message.message_id)
             log.info("STATE RESET")
         else:
             update_user_state(uid=user.uid, state="NULL", input_value="NULL")
-            send_message_timeout_five_times(bot, user.uid, "Нужно указать дату и время в формате дд:мм ЧЧ:ММ",
-                                            reply_to_message_id=message.message_id)
+            send_message_timeout_five_times(bot, user.uid, "Укажите в формате дд.мм.гг ЧЧ:ММ",
+                                            reply_markup=keyboard, reply_to_message_id=message.message_id)
             log.info("STATE RESET")
 
     elif check_user_state_input(user.uid) == "INPUT_QUESTION":
