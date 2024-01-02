@@ -8,7 +8,7 @@ from BotUser.bot_user import Botuser
 from BotUser.utils.keyboard_helper import get_request_keyboard, get_feedback_keyboard
 from BotUser.utils.send_message_timeout import send_message_timeout_five_times
 from utils import db_connector
-from utils.db_connector import set_notification_sent, get_delay_hours, get_notification_count_by_uid, add_notification, \
+from utils.db_connector import set_notification_sent, get_notification_count_by_uid, add_notification, \
     get_max_notification_id, update_message_id, set_notification_blocked
 from utils.logger import get_logger
 from utils.notifications import Notification
