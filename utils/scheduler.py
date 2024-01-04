@@ -103,7 +103,7 @@ def prepare_next_notification(current):
         next_step = current.step_id + 1
         if status == "stop":
             next_datetime = datetime.datetime.today() + datetime.timedelta(days=1)
-            next_datetime_str = f"""{next_datetime.strftime('%Y-%m-%d')} 08:00:00"""
+            next_datetime_str = f"""{next_datetime.strftime('%Y-%m-%d')} 10:00:00"""
             next_step = 1
 
         add_notification(current=current, next_datetime=next_datetime_str, step_id=next_step)
@@ -113,7 +113,7 @@ def prepare_next_notification(current):
         this_datetime = datetime.datetime.strptime(current.datetime, '%Y-%m-%d %H:%M:%S')
         next_datetime = this_datetime + datetime.timedelta(days=1)
         next_datetime_str = next_datetime.strftime('%Y-%m-%d')
-        add_notification(current=current, next_datetime=f'{next_datetime_str} 08:00:00', step_id=1)
+        add_notification(current=current, next_datetime=f'{next_datetime_str} 10:00:00', step_id=1)
 
 
 def check_pending(bot):
