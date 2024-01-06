@@ -232,10 +232,11 @@ def text_message_handle(bot, message):
             send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard, reply_to_message_id=message.message_id)
             log.info("STATE RESET")
         else:
-            update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+            # Commented, after user inpus wrong value next message will be also input timezone
+            # update_user_state(uid=user.uid, state="NULL", input_value="NULL")
             send_message_timeout_five_times(bot, user.uid, "Нужно указать целое число",
                                             reply_markup=keyboard, reply_to_message_id=message.message_id)
-            log.info("STATE RESET")
+            # log.info("STATE RESET")
 
     elif check_user_state_input(user.uid) == "INPUT_TIMEZONE":
         """ Обработка введенного пользователем текущего времени """
@@ -250,10 +251,11 @@ def text_message_handle(bot, message):
             send_message_timeout_five_times(bot, user.uid, message_text, reply_markup=keyboard, reply_to_message_id=message.message_id)
             log.info("STATE RESET")
         else:
-            update_user_state(uid=user.uid, state="NULL", input_value="NULL")
+            # Commented, after user inpus wrong value next message will be also input timezone
+            # update_user_state(uid=user.uid, state="NULL", input_value="NULL")
             send_message_timeout_five_times(bot, user.uid, "Укажите в формате дд.мм.гг ЧЧ:ММ",
                                             reply_markup=keyboard, reply_to_message_id=message.message_id)
-            log.info("STATE RESET")
+            # log.info("STATE RESET")
 
     elif check_user_state_input(user.uid) == "INPUT_QUESTION":
         """ Обработка вопроса автору """
